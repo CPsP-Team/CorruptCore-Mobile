@@ -22,7 +22,7 @@ jobs:
       - name: Install Libraries
         run: |
           haxelib install hxcpp > /dev/null --quiet
-          chmod +x ./setup/unix.sh
+          chmod +x ./setup/source-config-unix-mobile.sh
           sh ./setup/source-config-unix-mobile.sh
 
       - name: Configure Android
