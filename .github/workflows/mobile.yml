@@ -1,0 +1,43 @@
+name: Android Build
+
+on: workflow_dispatch
+jobs:
+  buildAndroid-ARM64:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
+      - uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.3.6
+
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@main
+        id: setup-ndk
+        with:
+          ndk-version: r27c
+          add-to-path: false
+ 
+      - name: Install Libraries
+        run: |
+          haxelib install hxcpp > /dev/null --quiet
+          chmod +x ./setup/unix.sh
+          sh ./setup/unix.sh
+
+      - name: Configure Android
+        run: |
+          haxelib run lime rebuild hxcpp
+          haxelib run lime config ANDROID_SDK $ANDROID_HOME
+          haxelib run lime config ANDROID_NDK_ROOT ${{ steps.setup-ndk.outputs.ndk-path }}
+          haxelib run lime config JAVA_HOME $JAVA_HOME
+          haxelib run lime config ANDROID_SETUP true 
+
+      - name: Compile
+        run: haxelib run lime build android -final
+
+      - name: Publish Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: androidBuild
+          path: 'export/release/android/bin/app/build/outputs/apk'
