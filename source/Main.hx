@@ -65,6 +65,16 @@ class Main extends Sprite
 	{
 		super();
 
+		#if mobile
+		#if android
+		MobileUtil.initDirectory(); //do not make this jobs everytime
+		MobileUtil.getPermissions();
+		MobileUtil.copySpesificFileFromAssets('mobile/storageModes.txt', MobileUtil.getCustomStoragePath());
+		#end
+		Sys.setCwd(MobileUtil.getStorageDirectory());
+		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+		#end
+		
 		#if CRASH_HANDLER
 	    CrashHandler.init();
 	    #end
@@ -104,6 +114,7 @@ class Main extends Sprite
 
 	private function setupGame():Void
 	{
+		#if android FlxG.android.preventDefaultKeys = [BACK]; #end
 		#if (openfl < '9.2.0')
         var stageWidth:Int = Lib.current.stage.stageWidth;
 	    var stageHeight:Int = Lib.current.stage.stageHeight;
