@@ -73,6 +73,7 @@
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web || flash"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3"  unless="web || flash"/>
+	<assets path="mobile/storageModes.txt" if="android"/>
 
 	<section if="TITLE_SCREEN_EASTER_EGG">
 		<assets path="assets/secrets" rename="assets" exclude="*.ogg" if="web || flash"/>
