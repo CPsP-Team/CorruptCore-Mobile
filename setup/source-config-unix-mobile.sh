@@ -8,6 +8,7 @@ haxelib setup ~/haxelib
 
 haxelib install tjson --quiet
 haxelib install hxjsonast --quiet
+haxelib install flixel 6.1.2
 haxelib set flixel 6.1.2
 haxelib git lime https://github.com/ArkoseLabsOfficial/lime
 haxelib git openfl https://github.com/GreenColdTea/openfl.git
@@ -15,9 +16,11 @@ haxelib install format --quiet
 haxelib install hxp --quiet
 haxelib install flixel-waveform --quiet --skip-dependencies
 haxelib run lime setup flixel
+haxelib install flixel-tools 1.5.1
 haxelib set flixel-tools 1.5.1
+haxelib install flixel-addons 4.0.1
 haxelib set flixel-addons 4.0.1
-haxelib set hxdiscord_rpc 1.3.0
+haxelib install hxopus 2.0.0
 haxelib set hxopus 2.0.0
 haxelib install hxflac
 haxelib git away3d https://github.com/openfl/away3d.git
