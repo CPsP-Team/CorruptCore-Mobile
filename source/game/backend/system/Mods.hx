@@ -47,7 +47,7 @@ class Mods
     inline public static function getModPath(key:String = ''):String
     {
         #if MODS_ALLOWED
-        return '$MODS_FOLDER/$key';
+        return Sys.getCwd() + '$MODS_FOLDER/$key';
         #else
         return '';
         #end
@@ -444,7 +444,7 @@ class Mods
                 return 'zip://$mod/$key';
             }
         }
-        return '$MODS_FOLDER/' + key;
+        return Sys.getCwd() + '$MODS_FOLDER/' + key;
         #else
         return '';
         #end
