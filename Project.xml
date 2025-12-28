@@ -53,7 +53,7 @@
 	</section>
 
 	<!-- CC ENGINE CUSTOMIZATION -->
-	<define name="MODS_ALLOWED" if="desktop" />
+	<define name="MODS_ALLOWED" if="desktop || mobile" />
 	<define name="LUA_ALLOWED" if="cpp" />
 	<define name="HSCRIPT_ALLOWED" />
 	<define name="MODCHART_ALLOWED" />
