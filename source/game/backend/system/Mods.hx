@@ -444,7 +444,7 @@ class Mods
                 return 'zip://$mod/$key';
             }
         }
-        return Sys.getCwd() + '$MODS_FOLDER/' + key;
+        return '$MODS_FOLDER/' + key;
         #else
         return '';
         #end
