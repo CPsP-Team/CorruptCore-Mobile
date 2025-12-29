@@ -1,4 +1,4 @@
-package mobile.utils;
+package game.mobile.utils;
 
 import lime.system.System as LimeSystem;
 import haxe.io.Path;
