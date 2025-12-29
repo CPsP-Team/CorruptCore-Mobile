@@ -36,6 +36,9 @@ import android.os.Build.VERSION as AndroidVersion;
 import android.os.Build.VERSION_CODES as AndroidVersionCode;
 import android.os.BatteryManager as AndroidBatteryManager;
 #end
+#if mobile
+import game.mobjle.backend.*;
+#end
 
 import psych.ui.*;
 
