@@ -5,7 +5,7 @@ import lime.system.Display;
 import lime.system.System;
 
 import flixel.util.FlxColor;
-
+#if !mobile
 #if (cpp && windows)
 @:buildXml('
 <target id="haxe">
@@ -164,3 +164,4 @@ class Native
 		#end
 	}
 }
+#end
