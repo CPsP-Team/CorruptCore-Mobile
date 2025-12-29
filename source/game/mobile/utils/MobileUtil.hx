@@ -125,8 +125,8 @@ class MobileUtil
 
 		try
 		{
-			if (!FileSystem.exists(MobileUtil.getDirectory() + 'mods'))
-				FileSystem.createDirectory(MobileUtil.getDirectory() + 'mods');
+			if (!FileSystem.exists(MobileUtil.getDirectory() + 'contents'))
+				FileSystem.createDirectory(MobileUtil.getDirectory() + 'contents');
 		}
 		catch (e:Dynamic)
 		{
