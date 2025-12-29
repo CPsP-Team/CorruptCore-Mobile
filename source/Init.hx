@@ -125,8 +125,6 @@ class Init extends FlxState
 		FlxG.mouse.visible = false;
     	FlxG.mouse.useSystemCursor = true;
 		#end
-
-		FlxG.scaleMode = new flixel.system.scaleModes.BaseScaleMode();
     }
 
 	private function pluginsLessGo()
