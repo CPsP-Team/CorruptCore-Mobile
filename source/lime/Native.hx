@@ -5,8 +5,7 @@ import lime.system.Display;
 import lime.system.System;
 
 import flixel.util.FlxColor;
-#if !mobile
-#if (cpp && windows)
+#if (cpp && windows && !mobile)
 @:buildXml('
 <target id="haxe">
 	<lib name="dwmapi.lib" if="windows"/>
@@ -73,6 +72,7 @@ void markAsGame(HWND hwnd) {
 #end
 class Native
 {
+	#if windows
 	//stolen from cne lol sorry
 	@:functionCode('
 		int darkMode = enable ? 1 : 0;
@@ -90,6 +90,7 @@ class Native
 		}
 		UpdateWindow(window);
 	')
+	#end
 	public static function setWindowDarkMode(title:String, enable:Bool) {}
 
 	public static function __init__():Void
@@ -99,7 +100,7 @@ class Native
 
 	public static function registerDPIAware():Void
 	{
-		#if (cpp && windows)
+		#if (cpp && windows && !mobile)
 		// DPI Scaling fix for windows 
 		// this shouldn't be needed for other systems
 		// Credit to YoshiCrafter29 for finding this function
@@ -124,7 +125,7 @@ class Native
 		if (fixedScaling) return;
 		fixedScaling = true;
 
-		#if (cpp && windows)
+		#if (cpp && windows && !mobile)
 		final display:Null<Display> = System.getDisplay(0);
 		if (display != null)
 		{
@@ -148,20 +149,20 @@ class Native
 		');
 		#end
 	}
-
+    #if windows
 	@:functionCode('
 		getHandle();
 		if (curHandle != (HWND)0) {
 			markAsGame(curHandle);
 		}
 	')
+	#end
 	public static function registerAsGame():Void {}
 
 	public static function setConsoleOutputToUTF8():Void
 	{
-		#if (cpp && windows)
+		#if (cpp && windows && !mobile)
 		untyped __cpp__('SetConsoleOutputCP(CP_UTF8);');
 		#end
 	}
 }
-#end
