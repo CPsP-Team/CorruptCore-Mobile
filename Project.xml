@@ -147,7 +147,7 @@
 	<section if="cpp">
 		<haxelib name="sl-windows-api" if="windows" />
 		<haxelib name="hxflac" />
-		<haxelib name="hxopus" />
+		<!--<haxelib name="hxopus" />-->
 	</section>
 
 	<!-- Disable Discord IO Thread -->
