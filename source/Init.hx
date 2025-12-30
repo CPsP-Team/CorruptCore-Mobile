@@ -30,6 +30,17 @@ class Init extends FlxState
 
     override function create()
     {
+      	#if mobile
+		#if android
+		MobileUtil.initDirectory(); //do not make this jobs everytime
+		MobileUtil.getPermissions();
+		MobileUtil.copySpesificFileFromAssets('mobile/storageModes.txt', MobileUtil.getCustomStoragePath());
+		if (!MobileUtil.areAssetsCopied("assets/"))
+			MobileUtil.copyAssetsFromAPK("assets/");
+		#end
+		Sys.setCwd(MobileUtil.getStorageDirectory());
+		#end
+
         if (!initialized) {
             performInitialInit();
             initialized = true;
