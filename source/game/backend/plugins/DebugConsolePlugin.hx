@@ -921,7 +921,7 @@ class DebugConsolePlugin extends FlxBasic
     {
         super.update(elapsed);
         
-        if (FlxG.keys.justPressed.F12)
+        if (FlxG.keys.justPressed.F12 #if android || FlxG.android.justPressed.BACK #end)
         {
             if (consoleVisible)
             {
