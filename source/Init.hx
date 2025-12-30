@@ -94,7 +94,7 @@ class Init extends FlxState
 		}
 
         #if mobile
-        trace(Sys.setCwd(MobileUtil.getStorageDirectory()));
+        trace(MobileUtil.getStorageDirectory());
         #end
 
 		#if VIDEOS_ALLOWED
