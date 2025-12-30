@@ -41,16 +41,6 @@ class Init extends FlxState
     }
     
     private function performInitialInit():Void {
-     	#if mobile
-		#if android
-		MobileUtil.initDirectory(); //do not make this jobs everytime
-		MobileUtil.getPermissions();
-		MobileUtil.copySpesificFileFromAssets('mobile/storageModes.txt', MobileUtil.getCustomStoragePath());
-		if (!MobileUtil.areAssetsCopied("assets/"))
-			MobileUtil.copyAssetsFromAPK("assets/");
-		#end
-		Sys.setCwd(MobileUtil.getStorageDirectory());
-		#end
         game.backend.PlayerSettings.init();
 
         FlxG.save.bind('ccengine', CoolUtil.getSavePath());
