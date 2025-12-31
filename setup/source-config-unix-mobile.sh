@@ -15,7 +15,7 @@ haxelib install format --quiet
 haxelib install hxp --quiet
 haxelib install flixel-waveform --quiet --skip-dependencies
 haxelib run lime setup flixel
-haxelib instal flixel-tools 1.5.1
+haxelib install flixel-tools 1.5.1
 haxelib set flixel-tools 1.5.1
 haxelib install flixel-addons 4.0.1
 haxelib set flixel-addons 4.0.1
