@@ -34,7 +34,7 @@ jobs:
           haxelib run lime config ANDROID_SETUP true 
 
       - name: Compile
-        run: haxelib run lime build android -final
+        run: haxelib run lime build android -final -ONLY_ARM64
 
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
