@@ -10,7 +10,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.7
+          haxe-version: 4.3.6
 
       - name: Setup Android NDK
         uses: nttld/setup-ndk@main
@@ -21,7 +21,6 @@ jobs:
  
       - name: Install Libraries
         run: |
-          haxelib install hxcpp > /dev/null --quiet
           chmod +x ./setup/source-config-unix-mobile.sh
           sh ./setup/source-config-unix-mobile.sh
 
