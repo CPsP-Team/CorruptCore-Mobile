@@ -70,10 +70,11 @@ class Main extends Sprite
 		MobileUtil.initDirectory(); //do not make this jobs everytime
 		MobileUtil.getPermissions();
 		MobileUtil.copySpesificFileFromAssets('mobile/storageModes.txt', MobileUtil.getCustomStoragePath());
-		if (!MobileUtil.areAssetsCopied("assets/"))
-			MobileUtil.copyAssetsFromAPK("assets/");
 		#end
 		Sys.setCwd(MobileUtil.getStorageDirectory());
+		//Put this thing there because other way function won't see setted Cwd -ArkoseLabs
+		if (!MobileUtil.areAssetsCopied("assets/"))
+			MobileUtil.copyAssetsFromAPK("assets/");
 		#end
 
 		#if CRASH_HANDLER
