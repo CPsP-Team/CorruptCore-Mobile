@@ -1,6 +1,9 @@
 name: Android Build
 
 on: workflow_dispatch
+permissions:
+  contents: write
+
 jobs:
   buildAndroid-ARM64:
     runs-on: ubuntu-latest
