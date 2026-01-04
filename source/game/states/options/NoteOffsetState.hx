@@ -257,7 +257,7 @@ class NoteOffsetState extends MusicBeatState
 		{
 			updateCalibration(elapsed);
 			
-			if (FlxG.keys.justPressed.ESCAPE)
+			if (FlxG.keys.justPressed.ESCAPE #if MOBILE_CONTROLS || mobileButtonJustPressed('F') #end)
 			{
 				cancelCalibration();
 			}
@@ -405,7 +405,7 @@ class NoteOffsetState extends MusicBeatState
 				updateNoteDelay();
 			}
 
-			if (FlxG.keys.justPressed.F && !calibrating)
+			if ((FlxG.keys.justPressed.F) #if MOBILE_CONTROLS || mobileButtonJustPressed('F') #end && !calibrating)
 			{
 				startCalibration();
 			}
@@ -649,7 +649,7 @@ class NoteOffsetState extends MusicBeatState
 
 		#if MOBILE_CONTROLS
 		mobileManager.removeMobilePad();
-		mobileManager.addMobilePad(onComboMenu ? 'NONE' : 'FULL', 'A_B_C');
+		mobileManager.addMobilePad(onComboMenu ? 'NONE' : 'FULL', onComboMenu ? 'A_B_C' : 'A_B_C_F');
 		mobileManager.addMobilePadCamera();
 		#end
 
@@ -707,6 +707,10 @@ class NoteOffsetState extends MusicBeatState
 			
 			calibrationResult.text = "Progress: 0/16";
 		});
+		#if MOBILE_CONTROLS
+		mobileManager.addHitbox();
+		mobileManager.addHitboxCamera();
+		#end
 	}
 
 	function createStrumLine():Void
@@ -844,6 +848,9 @@ class NoteOffsetState extends MusicBeatState
 		new FlxTimer().start(3, (_) -> {
 			resetCalibrationUI();
 		});
+		#if MOBILE_CONTROLS
+		mobileManager.removeHitbox();
+		#end
 	}
 
 	function cleanupCalibration():Void
