@@ -146,6 +146,11 @@ class PauseSubState extends MusicBeatSubstate
                 member.cameras = [PlayState.instance.camPause];
 
 		super.create();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad(PlayState.chartingMode ? 'FULL_ALTER_2' : 'UP_DOWN', 'A');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	var holdTime:Float = 0;
@@ -415,5 +420,14 @@ class PauseSubState extends MusicBeatSubstate
 	function updateSkipTimeText()
 	{
 		skipTimeText.text = FlxStringUtil.formatTime(Math.max(0, Math.floor(curTime / 1000)), false) + ' / ' + FlxStringUtil.formatTime(Math.max(0, Math.floor(FlxG.sound.music.length / 1000)), false);
+	}
+
+	override function closeSubState() {
+		#if MOBILE_CONTROLS
+		mobileManager.removeMobilePad();
+		mobileManager.addMobilePad(PlayState.chartingMode ? 'FULL_ALTER_2' : 'UP_DOWN', 'A');
+		mobileManager.addMobilePadCamera();
+		#end
+		super.closeSubState();
 	}
 }

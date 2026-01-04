@@ -89,6 +89,10 @@ class NotesSubState extends MusicBeatSubstate
 		add(hsbText);
 
 		changeSelection();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad("FULL_ALTER", "A_B_C");
+		#end
 	}
 
 	var changingNote:Bool = false;
@@ -101,7 +105,7 @@ class NotesSubState extends MusicBeatSubstate
 				} else if(controls.UI_RIGHT_P) {
 					updateValue(1);
 					FlxG.sound.play(Paths.sound('scrollMenu'));
-				} else if(controls.RESET) {
+				} else if(controls.RESET #if MOBILE_CONTROLS || mobileButtonJustPressed('C') #end) {
 					resetValue(curSelected, typeSelected);
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 				}

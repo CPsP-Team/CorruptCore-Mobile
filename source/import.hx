@@ -39,6 +39,11 @@ import android.os.BatteryManager as AndroidBatteryManager;
 #if mobile
 import game.mobile.utils.*;
 #end
+//The mobile controls library, this is most useful thing I've ever done -ArkoseLabs
+#if MOBILE_CONTROLS
+import game.backend.system.Mods;
+import mobile.*;
+#end
 
 import psych.ui.*;
 

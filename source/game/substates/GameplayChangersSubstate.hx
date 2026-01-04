@@ -165,6 +165,11 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 		changeSelection();
 		reloadCheckboxes();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('FULL_ALTER', 'A_B_C');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	var nextAccept:Int = 5;
@@ -295,7 +300,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 				}
 			}
 
-			if(controls.RESET)
+			if(controls.RESET #if MOBILE_CONTROLS || mobileButtonJustPressed('C') #end)
 			{
 				for (i in 0...optionsArray.length)
 				{

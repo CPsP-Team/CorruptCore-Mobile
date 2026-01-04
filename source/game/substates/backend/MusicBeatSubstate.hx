@@ -19,6 +19,7 @@ import openfl.utils.Assets as OpenFlAssets;
 
 class MusicBeatSubstate extends FlxSubState
 {
+	public static var instance:MusicBeatSubstate;
 	#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
 	public var menuScriptArray:Array<FunkinHScript> = [];
 	private var excludeSubStates:Array<Dynamic>;
@@ -36,8 +37,31 @@ class MusicBeatSubstate extends FlxSubState
 		return [game.scripting.HScriptSubstate];
 	}
 
+	#if MOBILE_CONTROLS
+	public var mobileManager:MobileControlManager;
+	//makes code less messy & easier to write
+	public inline function mobileButtonJustPressed(buttons:Dynamic):Bool {
+		return mobileManager.mobilePad.justPressed(buttons);
+	}
+	public inline function mobileButtonPressed(buttons:Dynamic):Bool {
+		return mobileManager.mobilePad.pressed(buttons);
+	}
+	public inline function mobileButtonReleased(buttons:Dynamic):Bool {
+		return mobileManager.mobilePad.justReleased(buttons);
+	}
+	#end
+
 	public function new()
 	{
+		instance = this;
+
+		#if MOBILE_CONTROLS
+		try {
+			controls.isInSubstate = true;
+		} catch(e:Dynamic) {}
+		mobileManager = new MobileControlManager(this);
+		#end
+
 		super();
 
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
@@ -233,6 +257,12 @@ class MusicBeatSubstate extends FlxSubState
 	override function destroy()
 	{
 		hideSubStateCamera();
+		
+		#if MOBILE_CONTROLS
+		if (mobileManager != null) mobileManager.destroy();
+		controls.isInSubstate = false;
+		#end
+		instance = null;
 		
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
 		for (sc in menuScriptArray)

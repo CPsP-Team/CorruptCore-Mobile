@@ -48,6 +48,11 @@ class GitarooPause extends MusicBeatState
 		changeThing();
 
 		super.create();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('LEFT_RIGHT', 'A');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	override function update(elapsed:Float)

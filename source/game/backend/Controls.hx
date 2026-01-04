@@ -168,85 +168,109 @@ class Controls extends FlxActionSet
 
 	// Control state accessors
 	public var UI_UP(get, never):Bool;
-	inline function get_UI_UP() return action_ui_up.check();
+	inline function get_UI_UP()
+		return action_ui_up.check() #if MOBILE_CONTROLS || mobilePadPressed(['UP']) #end;
 
 	public var UI_LEFT(get, never):Bool;
-	inline function get_UI_LEFT() return action_ui_left.check();
+	inline function get_UI_LEFT()
+		return action_ui_left.check() #if MOBILE_CONTROLS || mobilePadPressed(['LEFT']) #end;
 
 	public var UI_RIGHT(get, never):Bool;
-	inline function get_UI_RIGHT() return action_ui_right.check();
+	inline function get_UI_RIGHT()
+		return action_ui_right.check() #if MOBILE_CONTROLS || mobilePadPressed(['RIGHT']) #end;
 
 	public var UI_DOWN(get, never):Bool;
-	inline function get_UI_DOWN() return action_ui_down.check();
+	inline function get_UI_DOWN()
+		return action_ui_down.check() #if MOBILE_CONTROLS || mobilePadPressed(['DOWN']) #end;
 
 	public var UI_UP_P(get, never):Bool;
-	inline function get_UI_UP_P() return action_ui_upP.check();
+	inline function get_UI_UP_P()
+		return action_ui_upP.check() #if MOBILE_CONTROLS || mobilePadJustPressed(['UP']) #end;
 
 	public var UI_LEFT_P(get, never):Bool;
-	inline function get_UI_LEFT_P() return action_ui_leftP.check();
+	inline function get_UI_LEFT_P()
+		return action_ui_leftP.check() #if MOBILE_CONTROLS || mobilePadJustPressed(['LEFT']) #end;
 
 	public var UI_RIGHT_P(get, never):Bool;
-	inline function get_UI_RIGHT_P() return action_ui_rightP.check();
+	inline function get_UI_RIGHT_P()
+		return action_ui_rightP.check() #if MOBILE_CONTROLS || mobilePadJustPressed(['RIGHT']) #end;
 
 	public var UI_DOWN_P(get, never):Bool;
-	inline function get_UI_DOWN_P() return action_ui_downP.check();
+	inline function get_UI_DOWN_P()
+		return action_ui_downP.check() #if MOBILE_CONTROLS || mobilePadJustPressed(['DOWN']) #end;
 
 	public var UI_UP_R(get, never):Bool;
-	inline function get_UI_UP_R() return action_ui_upR.check();
+	inline function get_UI_UP_R()
+		return action_ui_upR.check() #if MOBILE_CONTROLS || mobilePadJustReleased(['UP']) #end;
 
 	public var UI_LEFT_R(get, never):Bool;
-	inline function get_UI_LEFT_R() return action_ui_leftR.check();
+	inline function get_UI_LEFT_R()
+		return action_ui_leftR.check() #if MOBILE_CONTROLS || mobilePadJustReleased(['LEFT']) #end;
 
 	public var UI_RIGHT_R(get, never):Bool;
-	inline function get_UI_RIGHT_R() return action_ui_rightR.check();
+	inline function get_UI_RIGHT_R()
+		return action_ui_rightR.check() #if MOBILE_CONTROLS || mobilePadJustReleased(['RIGHT']) #end;
 
 	public var UI_DOWN_R(get, never):Bool;
-	inline function get_UI_DOWN_R() return action_ui_downR.check();
+	inline function get_UI_DOWN_R()
+		return action_ui_downR.check() #if MOBILE_CONTROLS || mobilePadJustReleased(['DOWN']) #end;
 
 	public var NOTE_UP(get, never):Bool;
-	inline function get_NOTE_UP() return action_note_up.check();
+	inline function get_NOTE_UP()
+		return action_note_up.check() #if MOBILE_CONTROLS || hitboxPressed(['NOTE_UP']) #end;
 
 	public var NOTE_LEFT(get, never):Bool;
-	inline function get_NOTE_LEFT() return action_note_left.check();
+	inline function get_NOTE_LEFT()
+		return action_note_left.check() #if MOBILE_CONTROLS || hitboxPressed(['NOTE_LEFT']) #end;
 
 	public var NOTE_RIGHT(get, never):Bool;
-	inline function get_NOTE_RIGHT() return action_note_right.check();
+	inline function get_NOTE_RIGHT()
+		return action_note_right.check() #if MOBILE_CONTROLS || hitboxPressed(['NOTE_RIGHT']) #end;
 
 	public var NOTE_DOWN(get, never):Bool;
-	inline function get_NOTE_DOWN() return action_note_down.check();
+	inline function get_NOTE_DOWN()
+		return action_note_down.check() #if MOBILE_CONTROLS || hitboxPressed(['NOTE_DOWN']) #end;
 
 	public var NOTE_UP_P(get, never):Bool;
-	inline function get_NOTE_UP_P() return action_note_upP.check();
+	inline function get_NOTE_UP_P()
+		return action_note_upP.check() #if MOBILE_CONTROLS || hitboxJustPressed(['NOTE_UP']) #end;
 
 	public var NOTE_LEFT_P(get, never):Bool;
-	inline function get_NOTE_LEFT_P() return action_note_leftP.check();
+	inline function get_NOTE_LEFT_P()
+		return action_note_leftP.check() #if MOBILE_CONTROLS || hitboxJustPressed(['NOTE_LEFT']) #end;
 
 	public var NOTE_RIGHT_P(get, never):Bool;
-	inline function get_NOTE_RIGHT_P() return action_note_rightP.check();
+	inline function get_NOTE_RIGHT_P()
+		return action_note_rightP.check() #if MOBILE_CONTROLS || hitboxJustPressed(['NOTE_RIGHT']) #end;
 
 	public var NOTE_DOWN_P(get, never):Bool;
-	inline function get_NOTE_DOWN_P() return action_note_downP.check();
+	inline function get_NOTE_DOWN_P()
+		return action_note_downP.check() #if MOBILE_CONTROLS || hitboxJustPressed(['NOTE_DOWN']) #end;
 
 	public var NOTE_UP_R(get, never):Bool;
-	inline function get_NOTE_UP_R() return action_note_upR.check();
+	inline function get_NOTE_UP_R()
+		return action_note_upR.check() #if MOBILE_CONTROLS || hitboxJustReleased(['NOTE_UP']) #end;
 
 	public var NOTE_LEFT_R(get, never):Bool;
-	inline function get_NOTE_LEFT_R() return action_note_leftR.check();
+	inline function get_NOTE_LEFT_R()
+		return action_note_leftR.check() #if MOBILE_CONTROLS || hitboxJustReleased(['NOTE_LEFT']) #end;
 
 	public var NOTE_RIGHT_R(get, never):Bool;
-	inline function get_NOTE_RIGHT_R() return action_note_rightR.check();
+	inline function get_NOTE_RIGHT_R()
+		return action_note_rightR.check() #if MOBILE_CONTROLS || hitboxJustReleased(['NOTE_RIGHT']) #end;
 
 	public var NOTE_DOWN_R(get, never):Bool;
-	inline function get_NOTE_DOWN_R() return action_note_downR.check();
+	inline function get_NOTE_DOWN_R()
+		return action_note_downR.check() #if MOBILE_CONTROLS || hitboxJustReleased(['NOTE_DOWN']) #end;
 
 	public var ACCEPT(get, never):Bool;
-	inline function get_ACCEPT() return action_accept.check();
+	inline function get_ACCEPT() return action_accept.check() #if MOBILE_CONTROLS || mobilePadJustPressed(['A']) #end;
 
 	public var BACK(get, never):Bool;
-	inline function get_BACK() return action_back.check();
+	inline function get_BACK() return action_back.check() #if MOBILE_CONTROLS || mobilePadJustPressed(['B']) #end;
 
 	public var PAUSE(get, never):Bool;
-	inline function get_PAUSE() return action_pause.check();
+	inline function get_PAUSE() return action_pause.check() #if MOBILE_CONTROLS || mobilePadJustPressed(['P']) #end;
 
 	public var RESET(get, never):Bool;
 	inline function get_RESET() return action_reset.check();
@@ -920,4 +944,100 @@ class Controls extends FlxActionSet
 	{
 		return input.device == GAMEPAD && (deviceID == FlxInputDeviceID.ALL || input.deviceID == deviceID);
 	}
+
+	#if MOBILE_CONTROLS
+	public var isInSubstate:Bool = false; // don't worry about this it becomes true and false on it's own in MusicBeatSubstate
+	public var isInSubSubstate:Bool = false; // don't worry about this thing is not important
+	public var requestedInstance(get, default):Dynamic; // is set to MusicBeatState or MusicBeatSubstate when the constructor is called
+	public var requestedHitbox(get, default):FunkinHitbox; // for PlayState and EditorPlayState
+	public var requestedMobilePad(get, default):FunkinMobilePad; //for everything ig
+	public var mobileControls(get, never):Bool; // this is useless for now
+
+	private function mobilePadPressed(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedMobilePad != null)
+			if (requestedMobilePad.pressed(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function mobilePadJustPressed(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedMobilePad != null)
+			if (requestedMobilePad.justPressed(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function mobilePadJustReleased(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedMobilePad != null)
+			if (requestedMobilePad.justReleased(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function hitboxPressed(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedHitbox != null)
+			if (requestedHitbox.pressed(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function hitboxJustPressed(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedHitbox != null)
+			if (requestedHitbox.justPressed(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	private function hitboxJustReleased(keys:Array<String>):Bool
+	{
+		if (keys != null && requestedHitbox != null)
+			if (requestedHitbox.justReleased(keys) == true)
+				return true;
+
+		return false;
+	}
+
+	@:noCompletion
+	private function get_requestedInstance():Dynamic
+	{
+		/* subInstance code is here for if it's needed
+		if (isInSubSubstate)
+			return MusicBeatSubstate.subInstance;
+		else */ if (isInSubstate)
+			return MusicBeatSubstate.instance;
+		else
+			return MusicBeatState.getState();
+	}
+
+	@:noCompletion
+	private function get_requestedHitbox():FunkinHitbox
+	{
+		return requestedInstance.mobileManager.hitbox;
+	}
+
+	@:noCompletion
+	private function get_requestedMobilePad():FunkinMobilePad
+	{
+		return requestedInstance.mobileManager.mobilePad;
+	}
+
+	@:noCompletion
+	private function get_mobileControls():Bool
+	{
+		if (ClientPrefs.mobilePadAlpha >= 0.1)
+			return true;
+		else
+			return false;
+	}
+	#end
 }

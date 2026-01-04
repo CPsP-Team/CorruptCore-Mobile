@@ -36,6 +36,10 @@ class OptionsState extends MusicBeatState
 	public static var menuBG:FlxSprite;
 
 	function openSelectedSubstate(label:String) {
+		#if MOBILE_CONTROLS
+		if (label != "Adjust Delay and Combo")
+			mobileManager.mobilePad.visible = false;
+		#end
 		switch(label) {
 			case 'Note Colors':
 				openSubState(new game.substates.options.NotesSubState());
@@ -51,6 +55,10 @@ class OptionsState extends MusicBeatState
 				openSubState(new game.substates.options.MiscSettingsSubState());
 			case 'Adjust Delay and Combo':
 				LoadingState.loadAndSwitchState(() -> new game.states.options.NoteOffsetState());
+			#if MOBILE_CONTROLS
+			case 'Mobile':
+				openSubState(new game.mobile.substates.options.MobileSettingsSubState());
+			#end
 		}
 	}
 
@@ -95,11 +103,22 @@ class OptionsState extends MusicBeatState
 		ClientPrefs.saveSettings();
 
 		super.create();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('UP_DOWN', 'A_B_C');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	override function closeSubState() {
 		super.closeSubState();
 		ClientPrefs.saveSettings();
+		#if MOBILE_CONTROLS
+		mobileManager.removeMobilePad();
+		mobileManager.addMobilePad('UP_DOWN', 'A_B_C');
+		mobileManager.addMobilePadCamera();
+		mobileManager.mobilePad.visible = true;
+		#end
 	}
 
 	override function update(elapsed:Float) {
@@ -125,6 +144,11 @@ class OptionsState extends MusicBeatState
 				FlxG.switchState(() -> new MainMenuState());
 			}
 		}
+
+		#if MOBILE_CONTROLS
+		if (mobileButtonJustPressed('C'))
+			openSelectedSubstate('Mobile');
+		#end
 
 		if (controls.ACCEPT) {
 			openSelectedSubstate(options[curSelected]);

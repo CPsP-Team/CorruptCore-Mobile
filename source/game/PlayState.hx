@@ -833,6 +833,13 @@ class PlayState extends MusicBeatState
 		timeBarBG.cameras = [camHUD];
 		timeTxt.cameras = [camHUD];
 
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('NONE', 'P');
+		addPlayStateHitbox();
+		mobileManager.addMobilePadCamera(false, FlxG.cameras.list.indexOf(camPause));
+		mobileManager.hitbox.visible = mobileManager.mobilePad.visible = false;
+		#end
+
 		// if (SONG.song == 'South')
 		// FlxG.camera.alpha = 0.7;
 		// UI_camera.zoom = 1;
@@ -1376,6 +1383,10 @@ class PlayState extends MusicBeatState
 		var ret:Dynamic = callOnScripts('onStartCountdown', null, true);
 		if(ret != FunkinLua.Function_Stop) {
 			if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
+
+			#if MOBILE_CONTROLS
+			mobileManager.hitbox.visible = mobileManager.mobilePad.visible = true;
+			#end
 
 			generateStaticArrows(0);
 			generateStaticArrows(1);
@@ -3339,92 +3350,104 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	public var strumsBlocked:Array<Bool> = [];
 	private function onKeyPress(event:KeyboardEvent):Void
 	{
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = getKeyFromEvent(eventKey);
-		//trace('Pressed: ' + eventKey);
 
-		if (!cpuControlled && startedCountdown && !paused && key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || ClientPrefs.controllerMode))
-		{
-			if(!boyfriend.stunned && generatedMusic && !endingSong)
-			{
-				var ret:Dynamic = callOnScripts('preKeyPress', [key]);
-				if(ret == FunkinLua.Function_Stop) return;
+		if (!ClientPrefs.controllerMode){
+			#if debug
+			// Prevents crash specifically on debug without needing to try catch shit
+			@:privateAccess if (!FlxG.keys._keyListMap.exists(eventKey))
+				return;
+			#end
 
-				//more accurate hit time for the ratings?
-				var lastTime:Float = Conductor.songPosition;
-				Conductor.songPosition = FlxG.sound.music.time;
-
-				var canMiss:Bool = !ClientPrefs.ghostTapping;
-
-				// heavily based on my own code LOL if it aint broke dont fix it
-				var pressNotes:Array<Note> = [];
-				//var notesDatas:Array<Int> = [];
-				var notesStopped:Bool = false;
-
-				var sortedNotesList:Array<Note> = [];
-				notes.forEachAlive(function(daNote:Note)
-				{
-					if (strumsBlocked[daNote.noteData] != true && daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.isSustainNote && !daNote.blockHit)
-					{
-						if(daNote.noteData == key)
-						{
-							sortedNotesList.push(daNote);
-							//notesDatas.push(daNote.noteData);
-						}
-						canMiss = true;
-					}
-				});
-				sortedNotesList.sort(sortHitNotes);
-
-				if (sortedNotesList.length > 0) {
-					for (epicNote in sortedNotesList)
-					{
-						for (doubleNote in pressNotes) {
-							if (Math.abs(doubleNote.strumTime - epicNote.strumTime) < 1) {
-								doubleNote.kill();
-								notes.remove(doubleNote, true);
-								doubleNote.destroy();
-							} else
-								notesStopped = true;
-						}
-
-						// eee jack detection before was not super good
-						if (!notesStopped) {
-							goodNoteHit(epicNote);
-							pressNotes.push(epicNote);
-						}
-
-					}
-				}
-				else{
-					callOnScripts('onGhostTap', [key]);
-					if (canMiss) {
-						noteMissPress(key);
-					}
-				}
-
-				// I dunno what you need this for but here you go
-				//									- Shubs
-
-				// Shubs, this is for the "Just the Two of Us" achievement lol
-				//									- Shadow Mario
-				keysPressed[key] = true;
-
-				//more accurate hit time for the ratings? part 2 (Now that the calculations are done, go back to the time it was before for not causing a note stutter)
-				Conductor.songPosition = lastTime;
-			}
-
-			var spr:StrumNote = playerStrums.members[key];
-			if(strumsBlocked[key] != true && spr != null && spr.animation.curAnim.name != 'confirm')
-			{
-				spr.playAnim('pressed');
-				spr.resetAnim = 0;
-			}
-			callOnScripts('onKeyPress', [key]);
+			if (FlxG.keys.checkStatus(eventKey, JUST_PRESSED))
+				keyPressed(key);
+		} else {
+			keyPressed(key);
 		}
+	}
+
+	public var strumsBlocked:Array<Bool> = [];
+	private function keyPressed(key:Int):Void
+	{
+		if(cpuControlled || !startedCountdown || key < 0) return;
+		if(!generatedMusic || endingSong || boyfriend.stunned) return;
+
+		var ret:Dynamic = callOnScripts('preKeyPress', [key]);
+		if(ret == FunkinLua.Function_Stop) return;
+
+		//more accurate hit time for the ratings?
+		var lastTime:Float = Conductor.songPosition;
+		Conductor.songPosition = FlxG.sound.music.time;
+
+		var canMiss:Bool = !ClientPrefs.ghostTapping;
+
+		// heavily based on my own code LOL if it aint broke dont fix it
+		var pressNotes:Array<Note> = [];
+		//var notesDatas:Array<Int> = [];
+		var notesStopped:Bool = false;
+
+		var sortedNotesList:Array<Note> = [];
+		notes.forEachAlive(function(daNote:Note)
+		{
+			if (strumsBlocked[daNote.noteData] != true && daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.isSustainNote && !daNote.blockHit)
+			{
+				if(daNote.noteData == key)
+				{
+					sortedNotesList.push(daNote);
+					//notesDatas.push(daNote.noteData);
+				}
+				canMiss = true;
+			}
+		});
+		sortedNotesList.sort(sortHitNotes);
+
+		if (sortedNotesList.length > 0) {
+			for (epicNote in sortedNotesList)
+			{
+				for (doubleNote in pressNotes) {
+					if (Math.abs(doubleNote.strumTime - epicNote.strumTime) < 1) {
+						doubleNote.kill();
+						notes.remove(doubleNote, true);
+						doubleNote.destroy();
+					} else
+						notesStopped = true;
+				}
+
+				// eee jack detection before was not super good
+				if (!notesStopped) {
+					goodNoteHit(epicNote);
+					pressNotes.push(epicNote);
+				}
+
+			}
+		}
+		else{
+			callOnScripts('onGhostTap', [key]);
+			if (canMiss) {
+				noteMissPress(key);
+			}
+		}
+
+		// I dunno what you need this for but here you go
+		//									- Shubs
+
+		// Shubs, this is for the "Just the Two of Us" achievement lol
+		//									- Shadow Mario
+		keysPressed[key] = true;
+
+		//more accurate hit time for the ratings? part 2 (Now that the calculations are done, go back to the time it was before for not causing a note stutter)
+		Conductor.songPosition = lastTime;
+
+		var spr:StrumNote = playerStrums.members[key];
+		if(strumsBlocked[key] != true && spr != null && spr.animation.curAnim.name != 'confirm')
+		{
+			spr.playAnim('pressed');
+			spr.resetAnim = 0;
+		}
+		callOnScripts('onKeyPress', [key]);
 		//trace('pressed: ' + controlArray);
 	}
 
@@ -3432,20 +3455,27 @@ class PlayState extends MusicBeatState
 	{
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = getKeyFromEvent(eventKey);
+		// trace('Pressed: ' + eventKey);
 
+		if (key > -1)
+			keyReleased(key);
+	}
+
+	private function keyReleased(key:Int)
+	{
 		var ret:Dynamic = callOnScripts('preKeyRelease', [key]);
 		if(ret == FunkinLua.Function_Stop) return;
 
-		if(!cpuControlled && startedCountdown && !paused && key > -1)
+		if (cpuControlled || !startedCountdown || paused)
+			return;
+
+		var spr:StrumNote = playerStrums.members[key];
+		if(spr != null)
 		{
-			var spr:StrumNote = playerStrums.members[key];
-			if(spr != null)
-			{
-				spr.playAnim('static');
-				spr.resetAnim = 0;
-			}
-			callOnScripts('onKeyRelease', [key]);
+			spr.playAnim('static');
+			spr.resetAnim = 0;
 		}
+		callOnScripts('onKeyRelease', [key]);
 	}
 
 	function sortHitNotes(a:Note, b:Note):Int
@@ -4524,4 +4554,74 @@ class PlayState extends MusicBeatState
 
 		if (!FlxG.signals.preUpdate.has(checkForResync)) FlxG.signals.preUpdate.add(checkForResync);
 	}
+
+	#if MOBILE_CONTROLS
+	private function onButtonPress(button:MobileButton, ids:Array<String>, unique:Int):Void
+	{
+		if (ids.filter(id -> id.startsWith("NOTE")).length > 0)
+		{
+			var buttonCode:Int = (unique == -1 ? 0 : unique);
+
+			callOnLuas('onButtonPressPre', [buttonCode]);
+			if (button.justPressed) keyPressed(buttonCode);
+			callOnLuas('onButtonPress', [buttonCode]);
+		}
+	}
+
+	private function onButtonRelease(button:MobileButton, ids:Array<String>, unique:Int):Void
+	{
+		if (ids.filter(id -> id.startsWith("NOTE")).length > 0)
+		{
+			var buttonCode:Int = (unique == -1 ? 0 : unique);
+
+			callOnLuas('onButtonReleasePre', [buttonCode]);
+			if(buttonCode > -1) keyReleased(buttonCode);
+			callOnLuas('onButtonRelease', [buttonCode]);
+		}
+	}
+
+	public function reloadPlayStateHitbox(?mode:String)
+	{
+		removePlayStateHitbox();
+		addPlayStateHitbox(mode);
+	}
+
+	public function addPlayStateHitbox(?mode:String)
+	{
+		mobileManager.addHitbox(mode, ClientPrefs.hitboxHint);
+		mobileManager.addHitboxCamera(false, FlxG.cameras.list.indexOf(camPause));
+		connectControlToNotes('hitbox');
+		addHitboxDeadZone(['buttonP']);
+	}
+
+	public function addHitboxDeadZone(deadZoneButtons:Array<String>) {
+		mobileManager.hitbox.forEachAlive((button) ->
+		{
+			for (deadButton in deadZoneButtons) {
+				if (mobileManager.mobilePad.getButton(deadButton) != null)
+					button.deadZones.push(mobileManager.mobilePad.getButton(deadButton));
+			}
+		});
+	}
+
+	public function connectControlToNotes(?control:String) {
+		switch(control) {
+			case 'mobilePad':
+				mobileManager.mobilePad?.onButtonDown?.add(onButtonPress);
+				mobileManager.mobilePad?.onButtonUp?.add(onButtonRelease);
+			case 'hitbox':
+				mobileManager.hitbox?.onButtonDown?.add(onButtonPress);
+				mobileManager.hitbox?.onButtonUp?.add(onButtonRelease);
+		}
+	}
+
+	public function removePlayStateHitbox()
+	{
+		mobileManager.hitbox.forEachAlive((button) ->
+		{
+			button.deadZones = [];
+		});
+		mobileManager.removeHitbox();
+	}
+	#end
 }

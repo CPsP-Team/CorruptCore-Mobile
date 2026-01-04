@@ -13,6 +13,19 @@ import game.backend.Controls;
  * ClientPrefs class to manage client preferences and settings.
  */
 class ClientPrefs {
+	/**
+	 * Mobile.
+	**/
+	#if MOBILE_CONTROLS
+	public static var hitboxType:String = 'Gradient';
+	public static var hitboxMode:String = 'Normal (New)';
+	public static var mobilePadAlpha:Float = 0.6;
+	public static var hitboxAlpha:Float = 0.7;
+	public static var hitboxHint:Bool = false;
+	#end
+	#if android
+	public static var storageType:String = 'EXTERNAL';
+	#end
     /**
 	 * Preferences.
 	**/
@@ -102,6 +115,16 @@ class ClientPrefs {
     }
 
     public static function resetSettings() {
+        #if MOBILE_CONTROLS
+        hitboxType = 'Gradient';
+        hitboxMode = 'Normal (New)';
+        mobilePadAlpha = 0.6;
+        hitboxAlpha = 0.7;
+        hitboxHint = false;
+        #end
+        #if android
+        storageType = "EXTERNAL";
+        #end
         downScroll = false;
         middleScroll = false;
         opponentStrums = true;
@@ -156,6 +179,16 @@ class ClientPrefs {
     }
 
     public static function saveSettings() {
+        #if MOBILE_CONTROLS
+        FlxG.save.data.hitboxType = hitboxType;
+        FlxG.save.data.hitboxMode = hitboxMode;
+        FlxG.save.data.mobilePadAlpha = mobilePadAlpha;
+        FlxG.save.data.hitboxAlpha = hitboxAlpha;
+        FlxG.save.data.hitboxHint = hitboxHint;
+        #end
+        #if android
+        FlxG.save.data.storageType = storageType;
+        #end
         FlxG.save.data.downScroll = downScroll;
         FlxG.save.data.middleScroll = middleScroll;
         FlxG.save.data.opponentStrums = opponentStrums;
@@ -207,6 +240,16 @@ class ClientPrefs {
     }
 
     public static function loadPrefs() {
+        #if MOBILE_CONTROLS
+        if (FlxG.save.data.hitboxType != null) hitboxType = FlxG.save.data.hitboxType;
+        if (FlxG.save.data.hitboxMode != null) hitboxMode = FlxG.save.data.hitboxMode;
+        if (FlxG.save.data.mobilePadAlpha != null) mobilePadAlpha = FlxG.save.data.mobilePadAlpha;
+        if (FlxG.save.data.hitboxAlpha != null) hitboxAlpha = FlxG.save.data.hitboxAlpha;
+        if (FlxG.save.data.hitboxHint != null) hitboxHint = FlxG.save.data.hitboxHint;
+        #end
+        #if android
+        if (FlxG.save.data.storageType != null) storageType = FlxG.save.data.storageType;
+        #end
         if (FlxG.save.data.downScroll != null) downScroll = FlxG.save.data.downScroll;
         if (FlxG.save.data.middleScroll != null) middleScroll = FlxG.save.data.middleScroll;
         if (FlxG.save.data.opponentStrums != null) opponentStrums = FlxG.save.data.opponentStrums;

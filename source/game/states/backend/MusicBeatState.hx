@@ -92,10 +92,27 @@ class MusicBeatState extends FlxState
 
 	public function new() {
 		super();
+		#if MOBILE_CONTROLS
+		mobileManager = new MobileControlManager(this);
+		#end
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
 		excludeStates = initExcludeStates();
 		#end
 	}
+
+	#if MOBILE_CONTROLS
+	public var mobileManager:MobileControlManager;
+	//makes code less messy & easier to write
+	public inline function mobileButtonJustPressed(buttons:Dynamic):Bool {
+		return mobileManager.mobilePad.justPressed(buttons);
+	}
+	public inline function mobileButtonPressed(buttons:Dynamic):Bool {
+		return mobileManager.mobilePad.pressed(buttons);
+	}
+	public inline function mobileButtonReleased(buttons:Dynamic):Bool {
+		return mobileManager.mobilePad.justReleased(buttons);
+	}
+	#end
 
 	override function create() {
 		if(!_FunkinCameraInitialized) initFunkinCamera();
@@ -389,11 +406,13 @@ class MusicBeatState extends FlxState
 
 	override public function openSubState(subState:FlxSubState) 
 	{
+		#if MOBILE_CONTROLS if (mobileManager?.mobilePad != null) mobileManager.mobilePad.active = false; #end
 		if(quickCallMenuScript("onOpenSubState", [subState]) != FunkinLua.Function_Stop) super.openSubState(subState);
 	}
 
 	override public function closeSubState()
 	{
+		#if MOBILE_CONTROLS if (mobileManager?.mobilePad != null) mobileManager.mobilePad.active = true; #end
 		if(quickCallMenuScript("onCloseSubState", []) != FunkinLua.Function_Stop) super.closeSubState();
 	}
 	
@@ -419,6 +438,9 @@ class MusicBeatState extends FlxState
 	}
 	
 	override function destroy() {
+		#if MOBILE_CONTROLS
+		if (mobileManager != null) mobileManager.destroy();
+		#end
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
 		for (sc in menuScriptArray) {
 			sc.call("onDestroy", []);

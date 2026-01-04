@@ -47,7 +47,7 @@ class Mods
     inline public static function getModPath(key:String = ''):String
     {
         #if MODS_ALLOWED
-        return Sys.getCwd() + '$MODS_FOLDER/$key';
+        return #if mobile MobileUtil.getDirectory() #else Sys.getCwd() #end + '$MODS_FOLDER/$key';
         #else
         return '';
         #end

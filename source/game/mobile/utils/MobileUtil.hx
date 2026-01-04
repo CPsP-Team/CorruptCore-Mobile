@@ -20,39 +20,45 @@ using StringTools;
 * @Authors MaysLastPlay, ArkoseLabs, MarioMaster (MasterX-39), Dechis (dx7405)
 * @version: 0.4.0
 **/
+typedef CustomStorageModeData = { modes:Array<ModeData> }
+typedef ModeData = { Name:String, Folder:String }
 class MobileUtil
 {
 	#if sys
-	// root directory, used for handling the saved storage type and path
-	public static final rootDir:String = LimeSystem.applicationStorageDirectory;
-
 	public static inline function getStorageDirectory():String
 		return #if android haxe.io.Path.addTrailingSlash(AndroidContext.getExternalFilesDir()) #elseif ios lime.system.System.documentsDirectory #else Sys.getCwd() #end;
 
 	#if android
 	public static inline function getCustomStoragePath():String
-		return AndroidContext.getExternalFilesDir() + '/storagemodes.txt';
+		return AndroidContext.getExternalFilesDir() + '/storageModes.json';
 	public static inline function getStorageTypePath():String
 		return AndroidContext.getExternalFilesDir() + '/storagetype.txt';
 
 	public static function getCustomStorageDirectories(?doNotSeperate:Bool):Array<String>
 	{
-		var curTextFile:String = getCustomStoragePath();
+		var curJsonFile:String = getCustomStoragePath();
 		var ArrayReturn:Array<String> = [];
-		for (mode in CoolUtil.coolTextFile(curTextFile))
+
+		if (FileSystem.exists(curJsonFile))
 		{
-			if(mode.trim().length < 1) continue;
+			try {
+				var rawJson:String = File.getContent(curJsonFile);
+				var parsedData:CustomStorageModeData = haxe.Json.parse(rawJson);
 
-			//turning the readle to original one (also, much easier to rewrite the code) -KralOyuncu2010x
-			if (mode.contains('Name: ')) mode = mode.replace('Name: ', '');
-			if (mode.contains(' Folder: ')) mode = mode.replace(' Folder: ', '|');
-			//trace(mode);
+				if (parsedData.modes != null) {
+					for (mode in parsedData.modes) {
+						if (mode.Name == null || mode.Folder == null) continue;
 
-			var dat = mode.split("|");
-			if (doNotSeperate)
-				ArrayReturn.push(mode); //get both as array
-			else
-				ArrayReturn.push(dat[0]); //get storage name as array
+						if (doNotSeperate)
+							// Keeping the "Name|Folder" format, so initDirectory() doesn't break
+							ArrayReturn.push(mode.Name + "|" + mode.Folder);
+						else
+							ArrayReturn.push(mode.Name);
+					}
+				}
+			} catch (e:haxe.Exception) {
+				trace("Error parsing storage JSON: " + e.message);
+			}
 		}
 		return ArrayReturn;
 	}
@@ -62,7 +68,7 @@ class MobileUtil
 	public static function initDirectory():String {
 		var daPath:String = '';
 		if (!FileSystem.exists(getStorageTypePath()))
-			File.saveContent(getStorageTypePath(), 'EXTERNAL');
+			File.saveContent(getStorageTypePath(), ClientPrefs.storageType);
 
 		var curStorageType:String = File.getContent(getStorageTypePath());
 
@@ -90,26 +96,6 @@ class MobileUtil
 		}
 		daPath = Path.addTrailingSlash(daPath);
 		currentDirectory = daPath;
-		return daPath;
-	}
-
-	/**
-	 * Requests Storage Permissions on Android Platform.
-	 */
-	public static function getPermissions():Void
-	{
-		if (AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU)
-			AndroidPermissions.requestPermissions([
-				'READ_MEDIA_IMAGES',
-				'READ_MEDIA_VIDEO',
-				'READ_MEDIA_AUDIO',
-				'READ_MEDIA_VISUAL_USER_SELECTED'
-			]);
-		else
-			AndroidPermissions.requestPermissions(['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE']);
-
-		if (!AndroidEnvironment.isExternalStorageManager())
-			AndroidSettings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
 
 		try
 		{
@@ -134,6 +120,27 @@ class MobileUtil
 			"\nBut maybe this couldn't be right, android loves to give errors like this\nPress OK & let's see what happens\nCurrent Error You Got:\n" + e, "Warning!");
 			//lime.system.System.exit(1);
 		}
+
+		return daPath;
+	}
+
+	/**
+	 * Requests Storage Permissions on Android Platform.
+	 */
+	public static function getPermissions():Void
+	{
+		if (AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU)
+			AndroidPermissions.requestPermissions([
+				'READ_MEDIA_IMAGES',
+				'READ_MEDIA_VIDEO',
+				'READ_MEDIA_AUDIO',
+				'READ_MEDIA_VISUAL_USER_SELECTED'
+			]);
+		else
+			AndroidPermissions.requestPermissions(['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE']);
+
+		if (!AndroidEnvironment.isExternalStorageManager())
+			AndroidSettings.requestSetting('MANAGE_APP_ALL_FILES_ACCESS_PERMISSION');
 	}
 
 	public static var lastGettedPermission:Int;
@@ -145,18 +152,16 @@ class MobileUtil
 	}
 
 	public static function chmod(permissions:Int, fullPath:String) {
-		var process = new Process('chmod ${permissions} ${fullPath}');
+		var process = new Process('chmod -R ${permissions} ${fullPath}');
 
 		var exitCode = process.exitCode();
-		/*
 		if (exitCode == 0)
-			trace(‘Success: Permissions for the ${fullPath} file have been set to (${permissions})’);
+			trace('Success: Permissions for the ${fullPath} file have been set to (${permissions})');
 		else
 		{
 			var errorOutput = process.stderr.readAll().toString();
-			trace(‘ERROR: Request to change permissions for the (${fullPath}) file failed. Exit Code: ${exitCode}, Error: ${errorOutput}’);
+			trace('ERROR: Request to change permissions for the (${fullPath}) file failed. Exit Code: ${exitCode}, Error: ${errorOutput}');
 		}
-		*/
 		process.close();
 	}
 	#end

@@ -73,6 +73,11 @@ class AchievementsMenuState extends MusicBeatState
 		changeSelection();
 
 		super.create();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('UP_DOWN', 'B');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	override function update(elapsed:Float) {

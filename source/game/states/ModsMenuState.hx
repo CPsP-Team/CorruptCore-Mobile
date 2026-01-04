@@ -379,6 +379,11 @@ class ModsMenuState extends MusicBeatState
         FlxG.mouse.visible = true;
 
         super.create();
+
+        #if MOBILE_CONTROLS
+        mobileManager.addMobilePad((mods.length < 1) ? 'NONE' : 'UP_DOWN' , 'B');
+        mobileManager.addMobilePadCamera();
+        #end
     }
 
     function updateDescriptionText()

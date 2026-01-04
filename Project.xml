@@ -52,6 +52,17 @@
 		<!-- <haxedef name="HXCPP_TRACY_INCLUDE_CALLSTACKS"/> -->
 	</section>
 
+	<!-- MOBILE THINGS -->
+	<define name="MOBILE_CONTROLS" if="mobile"/>
+	<assets path="mobile/storageModes.json" if="android"/>
+	<section if="MOBILE_CONTROLS">
+		<assets path="mobile/assets" rename="assets/mobile"/>
+		<assets path="mobile/assets" rename="assets/mobile"/>
+		<haxelib name="mobile-controls"/>
+		<haxedef name="mobile_controls_file_support"/>
+		<haxedef name="mobile_controls_allow_mouse_clicks" if="desktop"/> <!-- can be broken -->
+	</section>
+
 	<!-- CC ENGINE CUSTOMIZATION -->
 	<define name="MODS_ALLOWED" if="desktop || mobile" />
 	<define name="LUA_ALLOWED" if="cpp" />

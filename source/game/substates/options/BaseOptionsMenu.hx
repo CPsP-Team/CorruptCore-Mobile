@@ -105,6 +105,11 @@ class BaseOptionsMenu extends MusicBeatSubstate
 
 		changeSelection();
 		reloadCheckboxes();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad("FULL_ALTER", "A_B_C");
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	public function addOption(option:Option) {
@@ -294,7 +299,7 @@ class BaseOptionsMenu extends MusicBeatSubstate
 					}
 				}
 
-				if(controls.RESET)
+				if(controls.RESET #if MOBILE_CONTROLS || mobileButtonJustPressed('C') #end)
 				{
 					for (i in 0...optionsArray.length)
 					{

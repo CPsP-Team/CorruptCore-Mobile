@@ -208,6 +208,20 @@ class TitleState extends MusicBeatState
 
 		if(!initialized && FlxG.sound.music == null) FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 
+		#if MOBILE_CONTROLS
+		MobileConfig.init('MobileControls', CoolUtil.getSavePath(), 'assets/mobile/',
+			[
+				'MobilePad/DPadModes',
+				'MobilePad/ActionModes',
+				'Hitbox/HitboxModes',
+			], [
+				DPAD,
+				ACTION,
+				HITBOX
+			]
+		);
+		#end
+
 		Conductor.changeBPM(titleJSON.bpm);
 		persistentUpdate = true;
 

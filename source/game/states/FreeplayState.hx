@@ -72,6 +72,10 @@ class FreeplayState extends MusicBeatState
 		}
 
 		super.create();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('FREEPLAY', 'A_B_C_X_Y_Z');
+		#end
 	}
 
 	function loadAvailableSongs()
@@ -196,7 +200,11 @@ class FreeplayState extends MusicBeatState
 	{
 		if (!isSoftcodedState())
 			updateSelection(0, false);
-		
+
+		#if MOBILE_CONTROLS
+		mobileManager.removeMobilePad();
+		mobileManager.addMobilePad('FREEPLAY', 'A_B_C_X_Y_Z');
+		#end
 		persistentUpdate = true;
 		super.closeSubState();
 	}
@@ -257,12 +265,12 @@ class FreeplayState extends MusicBeatState
 		var leftPressed = controls.UI_LEFT_P;
 		var rightPressed = controls.UI_RIGHT_P;
 		var accepted = controls.ACCEPT;
-		var spacePressed = FlxG.keys.justPressed.SPACE;
-		var controlPressed = FlxG.keys.justPressed.CONTROL;
-		var resetPressed = controls.RESET;
+		var spacePressed = FlxG.keys.justPressed.SPACE #if MOBILE_CONTROLS || mobileButtonJustPressed('X') #end;
+		var controlPressed = FlxG.keys.justPressed.CONTROL #if MOBILE_CONTROLS || mobileButtonJustPressed('C') #end;
+		var resetPressed = controls.RESET #if MOBILE_CONTROLS || mobileButtonJustPressed('Y') #end;
 		var backPressed = controls.BACK;
 
-		var shiftMultiplier = FlxG.keys.pressed.SHIFT ? 3 : 1;
+		var shiftMultiplier = (FlxG.keys.pressed.SHIFT #if MOBILE_CONTROLS || mobileButtonPressed('Z') #end) ? 3 : 1;
 
 		handleSelectionInput(upPressed, downPressed, shiftMultiplier, elapsed);
 		handleDifficultyInput(leftPressed, rightPressed, upPressed, downPressed);

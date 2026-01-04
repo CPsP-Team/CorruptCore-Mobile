@@ -69,7 +69,7 @@ class Main extends Sprite
 		#if android
 		MobileUtil.initDirectory(); //do not make this jobs everytime
 		MobileUtil.getPermissions();
-		MobileUtil.copySpesificFileFromAssets('mobile/storageModes.txt', MobileUtil.getCustomStoragePath());
+		MobileUtil.copySpesificFileFromAssets('mobile/storageModes.json', MobileUtil.getCustomStoragePath());
 		#end
 		Sys.setCwd(MobileUtil.getStorageDirectory());
 		//Put this thing there because other way function won't see setted Cwd -ArkoseLabs

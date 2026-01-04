@@ -357,7 +357,7 @@ class NoteOffsetState extends MusicBeatState
 				}
 			}
 
-			if(controls.RESET)
+			if(controls.RESET #if MOBILE_CONTROLS || mobileButtonJustPressed('C') #end)
 			{
 				for (i in 0...ClientPrefs.comboOffset.length)
 				{
@@ -398,7 +398,7 @@ class NoteOffsetState extends MusicBeatState
 				updateNoteDelay();
 			}
 
-			if(controls.RESET)
+			if(controls.RESET #if MOBILE_CONTROLS || mobileButtonJustPressed('C') #end)
 			{
 				holdTime = 0;
 				barPercent = 0;
@@ -647,7 +647,14 @@ class NoteOffsetState extends MusicBeatState
 		for (unVis in [timeBarBG, timeBar, timeTxt, beatText, calibrateText, helpText])
 			unVis.visible = !onComboMenu;
 
-		changeModeText.text = onComboMenu ? '< Combo Offset (Press Accept to Switch) >' : '< Note/Beat Delay (Press Accept to Switch) >';
+		#if MOBILE_CONTROLS
+		mobileManager.removeMobilePad();
+		mobileManager.addMobilePad(onComboMenu ? 'NONE' : 'FULL', 'A_B_C');
+		mobileManager.addMobilePadCamera();
+		#end
+
+		var buttonAccept:String = #if MOBILE_CONTROLS 'A' #else 'Accept' #end;
+		changeModeText.text = onComboMenu ? '< Combo Offset (Press $buttonAccept to Switch) >' : '< Note/Beat Delay (Press $buttonAccept to Switch) >';
 		changeModeText.text = changeModeText.text.toUpperCase();
 		FlxG.mouse.visible = onComboMenu;
 	}

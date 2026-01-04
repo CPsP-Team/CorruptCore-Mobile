@@ -112,6 +112,11 @@ class ControlsSubState extends MusicBeatSubstate {
 			}
 		}
 		changeSelection();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad("FULL_ALTER_2", "B");
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	var leaving:Bool = false;

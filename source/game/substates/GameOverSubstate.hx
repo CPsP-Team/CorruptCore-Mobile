@@ -101,6 +101,11 @@ class GameOverSubstate extends MusicBeatSubstate
 		}
 
 		super.create();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('NONE', 'A_B');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	public var startedDeath:Bool = false;

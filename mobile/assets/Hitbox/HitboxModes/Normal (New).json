@@ -1,0 +1,44 @@
+{
+  "hints": [
+    {
+      "button": "buttonNote1",
+      "buttonIDs": ["NOTE_LEFT"],
+      "buttonUniqueID": 0,
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 720,
+      "color": "0xFFC24B99"
+    },
+    {
+      "button": "buttonNote2",
+      "buttonIDs": ["NOTE_DOWN"],
+      "buttonUniqueID": 1,
+      "x": 320,
+      "y": 0,
+      "width": 320,
+      "height": 720,
+      "color": "0xFF00FFFF"
+    },
+    {
+      "button": "buttonNote3",
+      "buttonIDs": ["NOTE_UP"],
+      "buttonUniqueID": 2,
+      "x": 640,
+      "y": 0,
+      "width": 320,
+      "height": 720,
+      "color": "0xFF12FA05"
+    },
+    {
+      "button": "buttonNote4",
+      "buttonIDs": ["NOTE_RIGHT"],
+      "buttonUniqueID": 3,
+      "x": 960,
+      "y": 0,
+      "width": 320,
+      "height": 720,
+      "color": "0xFFF9393F"
+    }
+  ]
+}

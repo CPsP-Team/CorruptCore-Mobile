@@ -96,6 +96,11 @@ class CreditsState extends MusicBeatState
 		}
 
 		super.create();
+
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('UP_DOWN', 'A_B');
+		mobileManager.addMobilePadCamera();
+		#end
 	}
 
 	function initializeCredits()
