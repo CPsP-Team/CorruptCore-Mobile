@@ -141,11 +141,15 @@ class Song
 		}
 		#end
 
-		#if sys
-		rawJson ??= File.getContent(Paths.json(formattedFolder + '/' + formattedSong)).trim();
-		#end
-		
-		rawJson ??= Assets.getText(Paths.json(formattedFolder + '/' + formattedSong)).trim();
+		if(rawJson == null) {
+			var path:String = Paths.json('$formattedFolder/$formattedSong');
+			#if sys
+			if(FileSystem.exists(path))
+				rawJson = File.getContent(path).trim();
+			else
+			#end
+				rawJson = Assets.getText(path).trim;
+		}
 
 		while (!rawJson.endsWith("}"))
 		{
