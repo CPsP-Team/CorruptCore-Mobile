@@ -141,13 +141,11 @@ class Song
 		}
 		#end
 
-		if(rawJson == null) {
 		#if sys
 		rawJson ??= File.getContent(Paths.json(formattedFolder + '/' + formattedSong)).trim();
 		#end
 		
 		rawJson ??= Assets.getText(Paths.json(formattedFolder + '/' + formattedSong)).trim();
-		}
 
 		while (!rawJson.endsWith("}"))
 		{
