@@ -910,6 +910,9 @@ class NoteOffsetState extends MusicBeatState
 		cleanupCalibration();
 		resetCalibrationUI();
 		Conductor.songPosition = FlxG.sound.music.time;
+		#if MOBILE_CONTROLS
+		mobileManager.removeHitbox();
+		#end
 	}
 }
 
