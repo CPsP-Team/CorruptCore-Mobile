@@ -242,6 +242,11 @@ class NoteOffsetState extends MusicBeatState
 		Conductor.changeBPM(128.0);
 		FlxG.sound.playMusic(Paths.music('offsetSong'), 1, true);
 
+		#if MOBILE_CONTROLS
+		mobileManager.addMobilePad('FULL', 'A_B_C');
+		mobileManager.addMobilePadCamera();
+		#end
+
 		super.create();
 	}
 
