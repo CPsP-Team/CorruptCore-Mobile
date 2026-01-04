@@ -242,12 +242,6 @@ class NoteOffsetState extends MusicBeatState
 		Conductor.changeBPM(128.0);
 		FlxG.sound.playMusic(Paths.music('offsetSong'), 1, true);
 
-		#if MOBILE_CONTROLS
-		mobileManager.removeMobilePad();
-		mobileManager.addMobilePad(onComboMenu ? 'NONE' : 'FULL', 'A_B_C');
-		mobileManager.addMobilePadCamera();
-		#end
-
 		super.create();
 	}
 
@@ -652,6 +646,12 @@ class NoteOffsetState extends MusicBeatState
 
 		for (unVis in [timeBarBG, timeBar, timeTxt, beatText, calibrateText, helpText])
 			unVis.visible = !onComboMenu;
+
+		#if MOBILE_CONTROLS
+		mobileManager.removeMobilePad();
+		mobileManager.addMobilePad(onComboMenu ? 'NONE' : 'FULL', 'A_B_C');
+		mobileManager.addMobilePadCamera();
+		#end
 
 		var buttonAccept:String = #if MOBILE_CONTROLS 'A' #else 'Accept' #end;
 		changeModeText.text = onComboMenu ? '< Combo Offset (Press $buttonAccept to Switch) >' : '< Note/Beat Delay (Press $buttonAccept to Switch) >';
