@@ -405,7 +405,7 @@ class NoteOffsetState extends MusicBeatState
 				updateNoteDelay();
 			}
 
-			if ((FlxG.keys.justPressed.F) #if MOBILE_CONTROLS || mobileButtonJustPressed('F') #end && !calibrating)
+			if ((FlxG.keys.justPressed.F #if MOBILE_CONTROLS || mobileButtonJustPressed('F') #end) && !calibrating)
 			{
 				startCalibration();
 			}
