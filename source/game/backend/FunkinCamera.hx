@@ -32,7 +32,11 @@ class FunkinCamera extends FlxCamera
 		if (deadzone == null)
 		{
 			target.getMidpoint(_point);
+			#if (flixel <= "6.1.2")
 			_point.addPoint(targetOffset);
+			#else
+			_point.add(targetOffset);
+			#end
 			_scrollTarget.set(_point.x - width * 0.5, _point.y - height * 0.5);
 		}
 		else
