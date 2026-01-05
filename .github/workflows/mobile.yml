@@ -13,7 +13,7 @@ jobs:
 
       - uses: krdlab/setup-haxe@master
         with:
-          haxe-version: 4.3.6
+          haxe-version: 4.3.7
 
       - name: Setup Android NDK
         uses: nttld/setup-ndk@main
@@ -21,6 +21,12 @@ jobs:
         with:
           ndk-version: r27c
           add-to-path: false
+
+      - name: Setup JDK 24
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '24'
  
       - name: Install Libraries
         run: |
