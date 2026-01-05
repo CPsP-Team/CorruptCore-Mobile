@@ -22,7 +22,7 @@ jobs:
           ndk-version: r27c
           add-to-path: false
 
-      - name: Setup JDK 24
+      - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
