@@ -50,8 +50,8 @@ class MainMenuState extends MusicBeatState
 
 		#if MODS_ALLOWED
 		Mods.pushGlobalMods();
-		#end
 		WeekData.loadTheFirstEnabledMod();
+		#end
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("In the Menus", null);
@@ -73,7 +73,7 @@ class MainMenuState extends MusicBeatState
 		}
 
 		#if MOBILE_CONTROLS
-		mobileManager.addMobilePad('UP_DOWN', 'A_B');
+		mobileManager.addMobilePad('UP_DOWN', 'A_B_C');
 		mobileManager.addMobilePadCamera();
 		#end
 
@@ -215,10 +215,8 @@ class MainMenuState extends MusicBeatState
 			exitToTitle();
 		else if (controls.ACCEPT)
 			selectMenuItem();
-		#if desktop
-		else if (FlxG.keys.anyJustPressed(ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'))))
+		else if (FlxG.keys.anyJustPressed(ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'))) #if MOBILE_CONTROLS || mobileButtonJustPressed('C') #end)
 			openEditors();
-		#end
 	}
 
 	function changeSelection(change:Int = 0)
