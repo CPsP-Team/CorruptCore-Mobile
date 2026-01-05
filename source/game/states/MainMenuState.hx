@@ -299,11 +299,9 @@ class MainMenuState extends MusicBeatState
 		}
 	}
 
-	#if desktop
 	function openEditors()
 	{
 		isTransitioning = true;
 		FlxG.switchState(() -> new MasterEditorMenu());
 	}
-	#end
 }

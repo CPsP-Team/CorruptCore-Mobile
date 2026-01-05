@@ -56,8 +56,8 @@
 	<define name="MOBILE_CONTROLS" if="mobile"/>
 	<assets path="mobile/storageModes.json" if="android"/>
 	<section if="MOBILE_CONTROLS">
-		<assets path="mobile/assets" rename="assets/mobile"/>
-		<assets path="mobile/assets" rename="assets/mobile"/>
+		<assets path="mobile/assets" rename="assets/mobile" embed="true"/>
+
 		<haxelib name="mobile-controls"/>
 		<haxedef name="mobile_controls_file_support"/>
 		<haxedef name="mobile_controls_allow_mouse_clicks" if="desktop"/> <!-- can be broken -->
@@ -262,8 +262,6 @@
 
 	<!--Analyzer Optimization-->
 	<haxedef name="analyzer-optimize" unless="HSCRIPT_ALLOWED || LUA_ALLOWED"/>
-
-	<haxedef name='no-deprecation-warnings' />
 
 	<!--For Haxe 4.3.0 and above-->
 	<haxedef name='message.reporting' value='pretty' />
