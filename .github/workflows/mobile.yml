@@ -47,7 +47,7 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: androidBuild
+          name: androidBuild-noAssets
           path: 'export/release/android/bin/app/build/outputs/apk'
   buildAndroid-withAssets:
     runs-on: ubuntu-latest
@@ -91,5 +91,5 @@ jobs:
       - name: Publish Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: androidBuild
+          name: androidBuild-withAssets
           path: 'export/release/android/bin/app/build/outputs/apk'
