@@ -174,10 +174,6 @@ class EditorPlayState extends MusicBeatState
 			FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 			FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 		}
-		#if MOBILE_CONTROLS
-		PlayState.addPlayStateHitbox();
-		mobileManager.hitbox.visible = true;
-		#end
 
 		super.create();
 	}
