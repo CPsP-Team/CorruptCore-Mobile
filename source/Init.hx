@@ -93,10 +93,6 @@ class Init extends FlxState
 		    pluginsInitialized = true;
 		}
 
-        #if mobile
-        trace(MobileUtil.getStorageDirectory());
-        #end
-
 		#if VIDEOS_ALLOWED
 		hxvlc.util.Handle.init();
 		#end
