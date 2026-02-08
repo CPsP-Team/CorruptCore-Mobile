@@ -1682,6 +1682,8 @@ class PlayState extends MusicBeatState
 		FlxTween.tween(timeBar, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 		FlxTween.tween(timeTxt, {alpha: 1}, 0.5, {ease: FlxEase.circOut});
 
+		camZoomingOnSection = true;
+
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence (with Time Left)
 		DiscordClient.changePresence(detailsText, SONG.song.replace('-', ' ') + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength);
@@ -2471,7 +2473,12 @@ class PlayState extends MusicBeatState
 							}
 
 							// Kill extremely late notes and cause misses
-							if (Conductor.songPosition > noteKillOffset + daNote.strumTime)
+							var killTime:Float = daNote.strumTime;
+							if(daNote.isSustainNote && daNote.parent != null) {
+								killTime = daNote.parent.strumTime + daNote.parent.sustainLength;
+							}
+
+							if (Conductor.songPosition > noteKillOffset + killTime)
 							{
 								if (daNote.mustPress && !cpuControlled &&!daNote.ignoreNote && !endingSong && (daNote.tooLate || !daNote.wasGoodHit)) {
 									noteMiss(daNote);
@@ -4118,7 +4125,7 @@ class PlayState extends MusicBeatState
 		callOnScripts('onBeatHit');
 	}
 
-	var camZoomingOnSection:Bool = true;
+	var camZoomingOnSection:Bool = false;
 	override function sectionHit()
 	{
 		super.sectionHit();
