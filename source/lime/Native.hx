@@ -72,7 +72,6 @@ void markAsGame(HWND hwnd) {
 #end
 class Native
 {
-	#if windows
 	//stolen from cne lol sorry
 	@:functionCode('
 		int darkMode = enable ? 1 : 0;
@@ -90,7 +89,6 @@ class Native
 		}
 		UpdateWindow(window);
 	')
-	#end
 	public static function setWindowDarkMode(title:String, enable:Bool) {}
 
 	public static function __init__():Void
@@ -100,7 +98,7 @@ class Native
 
 	public static function registerDPIAware():Void
 	{
-		#if (cpp && windows && !mobile)
+		#if (cpp && windows)
 		// DPI Scaling fix for windows 
 		// this shouldn't be needed for other systems
 		// Credit to YoshiCrafter29 for finding this function
@@ -125,7 +123,7 @@ class Native
 		if (fixedScaling) return;
 		fixedScaling = true;
 
-		#if (cpp && windows && !mobile)
+		#if (cpp && windows)
 		final display:Null<Display> = System.getDisplay(0);
 		if (display != null)
 		{
@@ -149,7 +147,7 @@ class Native
 		');
 		#end
 	}
-    #if windows
+
 	@:functionCode('
 		getHandle();
 		if (curHandle != (HWND)0) {

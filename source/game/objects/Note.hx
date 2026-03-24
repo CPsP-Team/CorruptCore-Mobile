@@ -22,9 +22,10 @@ typedef EventNote = {
 	value2:String
 }
 
-class Note extends FlxSprite
+class Note extends flixel.addons.effects.FlxSkewedSprite
 {
 	public static final SUSTAIN_SIZE:Int = 44;
+	public static final defaultNoteSkin:String = 'NOTE_assets';
 
 	public var vec3Cache:Vector3 = new Vector3(1, 1, 0); // for vector3 operations in modchart code
 	public var defScale:FlxPoint = FlxPoint.get(1, 1); // for modcharts to keep the scaling
@@ -279,7 +280,7 @@ class Note extends FlxSprite
 	var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
 	public var originalHeightForCalcs:Float = 6;
 	public var correctionOffset:Float = 0; //dont mess with this
-	public function reloadNote(prefix:String = '', texture:String = '', postfix:String = '') {
+	public function reloadNote(?prefix:String, ?texture:String, ?postfix:String) {
 		prefix ??= '';
 		texture ??= '';
 		postfix ??= '';
@@ -287,9 +288,7 @@ class Note extends FlxSprite
 		var skin:String = texture;
 		if(texture.length < 1) {
 			skin = PlayState.SONG.arrowSkin;
-			if(skin == null || skin.length < 1) {
-				skin = 'NOTE_assets';
-			}
+			if(skin == null || skin.length < 1) skin = defaultNoteSkin;
 		}
 
 		var animName:String = null;
@@ -300,7 +299,9 @@ class Note extends FlxSprite
 		var arraySkin:Array<String> = skin.split('/');
 		arraySkin[arraySkin.length-1] = prefix + arraySkin[arraySkin.length-1] + postfix;
 
-		var lastScaleY:Float = scale.y;
+		var lastScaleY:Float = scale?.y ?? 1.0;
+		scale ??= FlxPoint.get(1, 1);
+		
 		var skinName:String = arraySkin.join('/');
 		if(PlayState.isPixelStage) {
 			if(isSustainNote) {

@@ -406,13 +406,11 @@ class MusicBeatState extends FlxState
 
 	override public function openSubState(subState:FlxSubState) 
 	{
-		#if MOBILE_CONTROLS if (mobileManager?.mobilePad != null) mobileManager.mobilePad.active = false; #end
 		if(quickCallMenuScript("onOpenSubState", [subState]) != FunkinLua.Function_Stop) super.openSubState(subState);
 	}
 
 	override public function closeSubState()
 	{
-		#if MOBILE_CONTROLS if (mobileManager?.mobilePad != null) mobileManager.mobilePad.active = true; #end
 		if(quickCallMenuScript("onCloseSubState", []) != FunkinLua.Function_Stop) super.closeSubState();
 	}
 	
@@ -423,7 +421,7 @@ class MusicBeatState extends FlxState
 	
 	override public function draw() 
 	{
-		if(quickCallMenuScript("onDraw", []) != FunkinLua.Function_Stop) super.draw();
+		if(quickCallMenuScript("onDraw", []) != ScriptResult.Function_Stop) super.draw();
 		quickCallMenuScript("onDrawPost", []);
 	}
 	
@@ -464,19 +462,20 @@ class MusicBeatState extends FlxState
 
 	public function quickCallMenuScript(func:String, ?args:Dynamic):Dynamic
 	{
-		var returnThing:Dynamic = FunkinLua.Function_Continue;
+		var returnThing:Dynamic = ScriptResult.Function_Continue;
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
 		for (script in menuScriptArray)
 		{
 			var scriptThing = script.call(func, args);
-			if (scriptThing == FunkinLua.Function_Stop) returnThing = scriptThing;
+			if (scriptThing == null) continue;
+			if (scriptThing == ScriptResult.Function_Stop) returnThing = scriptThing;
 		}
 		#end
 		return returnThing;
 	}
 
 	public function callOnMenuScript(event:String, args:Array<Dynamic>, ignoreStops = true, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
-		var returnVal = FunkinLua.Function_Continue;
+		var returnVal = ScriptResult.Function_Continue;
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
 		exclusions ??= [];
 		excludeValues ??= [];
@@ -486,12 +485,11 @@ class MusicBeatState extends FlxState
 				continue;
 
 			var myValue = sc.call(event, args);
-			if(myValue == FunkinLua.Function_StopLua && !ignoreStops)
+			if(myValue == ScriptResult.Function_Stop_Lua && !ignoreStops)
 				break;
 			
-			if(myValue != null && myValue != FunkinLua.Function_Continue) {
+			if(myValue != ScriptResult.Function_Continue)
 				returnVal = myValue;
-			}
 		}
 		#end
 		return returnVal;

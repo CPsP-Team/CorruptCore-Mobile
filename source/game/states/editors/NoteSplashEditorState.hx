@@ -292,7 +292,8 @@ class NoteSplashEditorState extends MusicBeatState
             var image = Paths.image(imageSkin);
             if (image == null)
             {
-                errorText.text = 'ERROR! Couldn\'t find $imageSkin.png';
+                var triedExtensions:String = Paths.IMAGE_EXTS.join(", ");
+                errorText.text = 'ERROR! Couldn\'t find $imageSkin.[$triedExtensions]';
                 errorText.alpha = 1;
                 return;
             }
@@ -300,7 +301,7 @@ class NoteSplashEditorState extends MusicBeatState
             {
                 errorText.color = FlxColor.GREEN;
                 errorText.alpha = 1;
-                errorText.text = 'Succesfully loaded $imageSkin.png';
+                errorText.text = 'Successfully loaded $imageSkin (format auto-detected)';
             }
 
             NoteSplash.configs.clear();
@@ -433,6 +434,21 @@ class NoteSplashEditorState extends MusicBeatState
 
         var loadButton:PsychUIButton = new PsychUIButton(180, 185, "Convert TXT", loadTxt);
         ui.add(loadButton);
+
+        var allowPixelCheck:PsychUICheckBox = new PsychUICheckBox(180, 105, "Allow Pixel?");
+        allowPixelCheck.onClick = () -> if (config != null) config.allowPixel = allowPixelCheck.checked;
+        allowPixelCheck.checked = config != null && cast(config.allowPixel, Null<Bool>) != null ? config.allowPixel : false;
+        ui.add(allowPixelCheck);
+
+        var allowHSBCheck:PsychUICheckBox = new PsychUICheckBox(180, allowPixelCheck.y + 20, "Allow HSB?");
+        allowHSBCheck.onClick = () -> if (config != null) config.allowHSB = allowHSBCheck.checked;
+        allowHSBCheck.checked = config != null && cast(config.allowHSB, Null<Bool>) != null ? config.allowHSB : false;
+        ui.add(allowHSBCheck);
+
+        var noAntialiasingCheck:PsychUICheckBox = new PsychUICheckBox(180, allowHSBCheck.y + 20, "No Antialiasing");
+        noAntialiasingCheck.onClick = () -> if (config != null) config.no_antialiasing = noAntialiasingCheck.checked;
+        noAntialiasingCheck.checked = config != null && cast(config.no_antialiasing, Null<Bool>) != null ? config.no_antialiasing : false;
+        ui.add(noAntialiasingCheck);
     }
 
     function updateGhosts() {

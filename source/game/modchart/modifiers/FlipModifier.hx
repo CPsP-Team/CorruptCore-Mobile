@@ -22,7 +22,7 @@ class FlipModifier extends NoteModifier {
      * @param beat Current beat with decimal precision  
      * @param pos Current position vector to modify
      * @param data Note direction/column (0-3)
-     * @param player Player index (0 = BF, 1 = Dad, -1 = Both)
+     * @param player Player index (0 = Player, 1 = Opponent, -1 = Both)
      * @param obj The game object (note or receptor)
      * @return Modified position vector with flip applied
      */
@@ -62,7 +62,7 @@ class FlipModifier extends NoteModifier {
         // - data=2 moves 0.5 spaces left
         // - data=3 (rightmost) moves 1.5 spaces left
         var mirrorDistanceMultiplier = (receptorCount / 2) - 0.5 - noteData;
-        var flipDistance = Note.swagWidth * mirrorDistanceMultiplier * getValue(player);
+        var flipDistance = Note.swagWidth * mirrorDistanceMultiplier * 2 * getValue(player);
         
         return flipDistance;
     }

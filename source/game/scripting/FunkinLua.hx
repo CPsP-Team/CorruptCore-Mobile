@@ -65,15 +65,6 @@ import game.scripting.lua.*;
 using StringTools;
 
 class FunkinLua {
-    @:unreflective
-    public static final Function_Stop:Dynamic = 1;
-
-    @:unreflective
-    public static final Function_Continue:Dynamic = 0;
-
-    @:unreflective
-    public static final Function_StopLua:Dynamic = 2;
-
     #if LUA_ALLOWED
     public var lua:cpp.RawPointer<Lua_State> = null;
     #end
@@ -142,9 +133,9 @@ class FunkinLua {
 
         trace((isString ? 'lua string loaded succesfully' : 'lua file loaded succesfully: $script'));
 
-        set('Function_StopLua', Function_StopLua);
-        set('Function_Stop', Function_Stop);
-        set('Function_Continue', Function_Continue);
+        set('Function_Stop_Lua', ScriptResult.Function_Stop_Lua);
+        set('Function_Stop', ScriptResult.Function_Stop);
+        set('Function_Continue', ScriptResult.Function_Continue);
 
         set('luaDebugMode', false);
         set('luaDeprecatedWarnings', true);
@@ -830,7 +821,7 @@ class FunkinLua {
 
             if (blah == null) {
                 #if LUA_ALLOWED
-                #if LUA_ALLOWED if (getBool('luaDebugPropertyTraces')) #end trace('WARNING: Property not found: "${shit[0]}" (object: $instanceInfo, full path: $variable)');
+                if (getBool('luaDebugPropertyTraces')) trace('WARNING: Property not found: "${shit[0]}" (object: $instanceInfo, full path: $variable)');
                 #end
                 return false;
             }
@@ -851,7 +842,7 @@ class FunkinLua {
                         } catch (e:Dynamic) {
                             var blahInfo:String = getObjectInfo(blah);
                             #if LUA_ALLOWED
-                            #if LUA_ALLOWED if (getBool('luaDebugPropertyTraces')) #end trace('ERROR: Failed to set property "$variable" on object: $blahInfo - ${e.message}');
+                            if (getBool('luaDebugPropertyTraces')) trace('ERROR: Failed to set property "$variable" on object: $blahInfo - ${e.message}');
                             #end
                             return false;
                         }
@@ -866,14 +857,14 @@ class FunkinLua {
                         } catch (e:Dynamic) {
                             var blahInfo:String = getObjectInfo(blah);
                             #if LUA_ALLOWED
-                            #if LUA_ALLOWED if (getBool('luaDebugPropertyTraces')) #end trace('ERROR: Failed to access index "$key" on object: $blahInfo while setting "$variable" - ${e.message}');
+                            if (getBool('luaDebugPropertyTraces')) trace('ERROR: Failed to access index "$key" on object: $blahInfo while setting "$variable" - ${e.message}');
                             #end
                             return false;
                         }
                     } else {
                         var blahInfo:String = getObjectInfo(blah);
                         #if LUA_ALLOWED
-                        #if LUA_ALLOWED if (getBool('luaDebugPropertyTraces')) #end trace('WARNING: Cannot access index on non-container: ${shit.slice(0, i).join('[')} (object: $blahInfo, type: ${Type.getClassName(Type.getClass(blah))})');
+                        if (getBool('luaDebugPropertyTraces')) trace('WARNING: Cannot access index on non-container: ${shit.slice(0, i).join('[')} (object: $blahInfo, type: ${Type.getClassName(Type.getClass(blah))})');
                         #end
                         return false;
                     }

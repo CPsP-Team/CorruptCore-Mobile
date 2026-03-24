@@ -1,17 +1,25 @@
 package game.objects;
 
-import flixel.FlxSprite;
-import flixel.util.FlxTimer;
+import flixel.FlxG;
 import flixel.math.FlxRect;
+import flixel.math.FlxPoint;
+import flixel.util.FlxDestroyUtil;
 
-import game.PlayState;
 import game.objects.Note;
 import game.objects.StrumNote;
 
-class NoteHoldCover extends FlxSprite {
+import math.Vector3;
+
+class NoteHoldCover extends flixel.addons.effects.FlxSkewedSprite {
+    public var vec3Cache:Vector3 = new Vector3();
+    public var defScale:FlxPoint = FlxPoint.get(1, 1);
+
+    public var pixelShader:PixelShader;
+    public var allowPixel:Bool = false;
+    
     public var colorSwap:ColorSwap = null;
     public var startCrochet:Float;
-    public var frameRate:Int;
+    public var frameRate:Int = 24;
     public var strumNote:StrumNote;
     public var curNote:Note;
     
@@ -21,39 +29,57 @@ class NoteHoldCover extends FlxSprite {
     static final PIXEL_OFFSET_Y = -210;
 
     var isEnding:Bool = false;
-    var endingTimer:FlxTimer = null;
+    var endTime:Float = 0;
+    var hasStartedEnd:Bool = false;
+
+    var startAnimName:String = null;
+    var loopAnimName:String = null;
+    var endAnimName:String = null;
 
     public static var activeCovers:Map<StrumNote, NoteHoldCover> = new Map();
+
+    public var texture(default, set):String = null;
+    private function set_texture(value:String):String {
+        if (texture == value) return value;
+        texture = value;
+        reloadCover();
+        return value;
+    }
 
     public function new() {
         super();
 
         animation = new PsychAnimationController(this);
-        antialiasing = ClientPrefs.globalAntialiasing;
+        antialiasing = !PlayState.isPixelStage ? ClientPrefs.globalAntialiasing : false;
 
-        var skin:String = 'holdCovers';
-        if(PlayState.SONG.holdCoverSkin != null && PlayState.SONG.holdCoverSkin.length > 1) skin = PlayState.SONG.holdCoverSkin;
+        var skin:String = !PlayState.isPixelStage ? 'holdCovers' : 'pixelUI/holdCoversPixel';
+        if(PlayState.SONG.holdCoverSkin?.length > 1) skin = PlayState.SONG.holdCoverSkin;
+        texture = skin;
 
         colorSwap = new ColorSwap();
+        pixelShader = new PixelShader();
+        
         shader = colorSwap.shader;
     }
 
-    override function update(elapsed:Float) {
-        if (strumNote != null) {
-            if (!isEnding) {
-                var strumAnimName = strumNote.animation.curAnim != null ? strumNote.animation.curAnim.name : "";
-                var isStrumStaticOrPressed = strumAnimName == "static" || strumAnimName == "pressed";
-                var isCoverAnimActive = animation.curAnim != null && 
-                                       animation.curAnim.name.startsWith("holdCover");
-                
-                visible = !(isCoverAnimActive && isStrumStaticOrPressed && curNote != null && !curNote.isSustainNote);
-            }
-        }
+    override function revive() {
+        super.revive();
 
-        super.update(elapsed);
+        isEnding = false;
+        hasStartedEnd = false;
+        endTime = 0;
+        startAnimName = null;
+        loopAnimName = null;
+        endAnimName = null;
+        strumNote = null;
+        curNote = null;
+        clipRect = null;
+        animation.onFinish.removeAll();
     }
     
-    public function setupHoldCover(strum:StrumNote, daNote:Note, texture:String = null, hueColor:Float = 0, satColor:Float = 0, brtColor:Float = 0):Void {
+    public function setupHoldCover(strum:StrumNote, daNote:Note, hueColor:Float = 0, satColor:Float = 0, brtColor:Float = 0):Void {
+        cleanup();
+
         if (strum == null || daNote == null) {
             kill();
             return;
@@ -72,93 +98,82 @@ class NoteHoldCover extends FlxSprite {
             return;
         }
 
-        final tail = parentNote.tail;
         final strumTime = parentNote.strumTime;
-        final lengthToGet = tail.length;
+        final lengthToGet = parentNote.tail.length;
         
         final timeThingy = (startCrochet * lengthToGet + (strumTime - Conductor.songPosition + ClientPrefs.ratingOffset)) / 1000;
-
-        if(texture == null) {
-            texture = 'holdCovers';
-            if(PlayState.SONG.holdCoverSkin != null && PlayState.SONG.holdCoverSkin.length > 1) texture = PlayState.SONG.holdCoverSkin;
-        }
+        endTime = Conductor.songPosition + (timeThingy * 1000);
 
         colorSwap.hue = hueColor;
         colorSwap.saturation = satColor;
         colorSwap.brightness = brtColor;
 
+        if (allowPixel) {
+            pixelShader.copyFromColorSwap(colorSwap);
+            pixelShader.pixelAmount = PlayState.daPixelZoom;
+            shader = pixelShader.shader;
+        } else {
+            shader = colorSwap.shader;
+        }
+
         strumNote = strum;
         curNote = daNote;
-        setPosition(strum.x, strum.y);
+        setPosition(strumNote.x, strumNote.y);
         offset.set(PlayState.isPixelStage ? PIXEL_OFFSET_X : OFFSET_X, OFFSET_Y);
-        visible = true;
-        isEnding = false;
-        
-        @:privateAccess
-        var colorSuffix = getColorSuffixFromNoteData(strumNote.noteData);
-        
-        frames = Paths.getSparrowAtlas(texture);
-        
-        if (animation.getByName('holdCover') == null)
-            animation.addByPrefix('holdCover', 'holdCover$colorSuffix', 20, true);
 
-        if (animation.getByName('holdCoverStart') == null)
-            animation.addByPrefix('holdCoverStart', 'holdCoverStart$colorSuffix', 24, false);
+        reloadCover();
+    }
+    
+    override function update(elapsed:Float) {
+        super.update(elapsed);
 
-        if (animation.getByName('holdCoverEnd') == null)
-            animation.addByPrefix('holdCoverEnd', 'holdCoverEnd$colorSuffix', 24, false);
+        if (!isEnding && !hasStartedEnd && endTime > 0 && Conductor.songPosition >= endTime)
+            startEndAnimation();
+    }
+
+    function startEndAnimation():Void {
+        if (!exists) return;
+
+        hasStartedEnd = true;
+        isEnding = true;
+
+        final shouldAnimateEnd = strumNote != null && curNote.mustPress;
+        final endAnimFullName = endAnimName != null ? '$endAnimName-end' : null;
         
-        animation.onFinish.removeAll();
-        
-        @:privateAccess
-        if(strumNote.alpha > 0 && strumNote.colorSwap.daAlpha > 0)
-            animation.play('holdCoverStart', true);
-        
-        animation.onFinish.add((name:String) -> {
-            if (name == 'holdCoverStart' && exists && visible) {
-                animation.play('holdCover', true);
-            }
-        });
-        
-        clipRect = new FlxRect(0, PlayState.isPixelStage ? PIXEL_OFFSET_Y : 0, frameWidth, frameHeight);
-
-        endingTimer?.cancel();
-        endingTimer = null;
-
-        endingTimer = new FlxTimer().start(timeThingy, (timer:FlxTimer) -> {
-            if (!exists) return;
-
-            isEnding = true;
-
-            @:privateAccess
-            final shouldAnimateEnd = strumNote != null && strumNote.alpha > 0 && strumNote.colorSwap.daAlpha > 0 && daNote.mustPress;
-
-            if (shouldAnimateEnd) {
-                animation.onFinish.removeAll();
-                
-                animation.play('holdCoverEnd', true);
+        if (shouldAnimateEnd && endAnimFullName != null && animation.getByName(endAnimFullName) != null) {
+            animation.play(endAnimFullName, true);
+            if (animation.curAnim != null) {
                 animation.curAnim.frameRate = frameRate;
-                clipRect = null;
-                
-                animation.onFinish.add((name:String) -> {
-                    if (name == 'holdCoverEnd') {
-                        finishCover();
-                    }
-                });
-            } else {
-                finishCover();
             }
-        });
+            clipRect = null;
+
+            animation.onFinish.removeAll();
+            animation.onFinish.add((animName:String) -> {
+                if (animName == endAnimFullName)
+                    finishCover();
+            });
+        } else {
+            finishCover();
+        }
     }
     
     public function finishCover():Void {
+        cleanup();
         visible = false;
-        isEnding = false;
-        
+
         if (strumNote != null && activeCovers.get(strumNote) == this)
             activeCovers.remove(strumNote);
-        
+
+        animation.onFinish.removeAll();
+
         kill();
+    }
+
+    inline function cleanup():Void {
+        isEnding = false;
+        hasStartedEnd = false;
+        endTime = 0;
+        animation.onFinish.removeAll();
     }
     
     private function getColorSuffixFromNoteData(noteData:Int):String {
@@ -171,12 +186,83 @@ class NoteHoldCover extends FlxSprite {
         }
     }
 
+    public function reloadCover():Void {
+        if (strumNote == null || curNote == null) return;
+
+        var skin:String = texture;
+        if (skin == null || skin.length < 1) {
+            skin = PlayState.SONG.holdCoverSkin;
+            if (skin == null || skin.length < 1) skin = PlayState.isPixelStage ? 'pixelUI/holdCoversPixel' : 'holdCovers';
+        }
+
+        var hue = colorSwap.hue;
+        var sat = colorSwap.saturation;
+        var brt = colorSwap.brightness;
+
+        @:privateAccess
+        animation.clearAnimations();
+
+        frames = Paths.getSparrowAtlas(skin);
+
+        var colorSuffix = getColorSuffixFromNoteData(strumNote.noteData);
+        var startAnim = startAnimName ?? (PlayState.isPixelStage ? 'loop' : 'holdCoverStart$colorSuffix');
+        var loopAnim = loopAnimName ?? (PlayState.isPixelStage ? 'loop' : 'holdCover$colorSuffix');
+        var endAnim = endAnimName ?? (PlayState.isPixelStage ? 'explode' : 'holdCoverEnd$colorSuffix');
+
+        startAnimName = startAnim;
+        loopAnimName = loopAnim;
+        endAnimName = endAnim;
+
+        animation.addByPrefix('$startAnim-start', startAnim, 24, false);
+        animation.addByPrefix('$loopAnim-loop', loopAnim, 20, true);
+        animation.addByPrefix('$endAnim-end', endAnim, 24, false);
+
+        var hasStartAnim = animation.getByName('$startAnim-start') != null;
+        var hasLoopAnim = animation.getByName('$loopAnim-loop') != null;
+        var hasEndAnim = animation.getByName('$endAnim-end') != null;
+
+        if (!hasStartAnim || !hasLoopAnim || !hasEndAnim) {
+            finishCover();
+            return;
+        }
+
+        if (!isEnding) {
+            animation.play('$startAnim-start', true);
+            animation.onFinish.removeAll();
+            animation.onFinish.add((animName:String) -> {
+                if (animName == '$startAnim-start' && !isEnding) {
+                    animation.play('$loopAnim-loop', true);
+                    animation.onFinish.removeAll();
+                }
+            });
+        }
+
+        if (PlayState.isPixelStage) {
+            clipRect = null;
+            setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+            updateHitbox();
+            offset.x /= scale.x - 1.5;
+            offset.y /= scale.y;
+        } else {
+            clipRect = new FlxRect(0, 0, frameWidth, frameHeight);
+        }
+
+        defScale.copyFrom(scale);
+        colorSwap.hue = hue;
+        colorSwap.saturation = sat;
+        colorSwap.brightness = brt;
+    }
+
     override function destroy() {
-        endingTimer?.cancel();
-        endingTimer = null;
+        cleanup();
         
         if (strumNote != null && activeCovers.get(strumNote) == this)
             activeCovers.remove(strumNote);
+        
+        if (defScale != null) {
+            defScale.put();
+            defScale = null;
+        }
         
         super.destroy();
     }

@@ -10,15 +10,18 @@ import math.Vector3;
 import game.modchart.Modifier.ModifierType;
 import game.modchart.modifiers.*;
 import game.modchart.events.*;
+import game.objects.*;
 
 /**
  * Handles chart modifiers on gameplay elements
  * Combines concepts from Schmovin', Andromeda, and custom modifier systems
+ * 
+ * @author NebulaTheZorua
+ * @modified by JustX
  */
 class ModManager {
     private var state:PlayState;
     
-    // Modifier storage
     public var notemodRegister:Map<String, Modifier> = [];
     public var miscmodRegister:Map<String, Modifier> = [];
     public var register:Map<String, Modifier> = [];
@@ -50,7 +53,7 @@ class ModManager {
             ScaleModifier, ConfusionModifier, OpponentModifier, 
             TransformModifier, InfinitePathModifier, PerspectiveModifier,
             AccelModifier, XModifier, TornadoModifier, ZigZagModifier,
-            SquareModifier
+            SquareModifier, SpiralModifier, SkewModifier
         ];
         
         for (modClass in defaultModifiers)
@@ -245,7 +248,6 @@ class ModManager {
     public function updateObject(beat:Float, obj:FlxSprite, position:Vector3, player:Int) {
         for (modName in activeMods[player]) {
             var modifier = notemodRegister.get(modName);
-            
             if (modifier == null || !obj.active) continue;
 
             if (Std.isOfType(obj, Note)) {
@@ -254,22 +256,26 @@ class ModManager {
             } else if (Std.isOfType(obj, StrumNote)) {
                 var strum:StrumNote = cast obj;
                 modifier.updateReceptor(beat, strum, position, player);
+            } else if (Std.isOfType(obj, NoteSplash)) {
+                var splash:NoteSplash = cast obj;
+                modifier.updateSplash(beat, splash, position, player);
+            } else if (Std.isOfType(obj, NoteHoldCover)) {
+                var cover:NoteHoldCover = cast obj;
+                modifier.updateHoldCover(beat, cover, position, player);
             }
         }
 
-        // Update object properties after modifier applications
         if (Std.isOfType(obj, Note)) {
             obj.updateHitbox();
-        }
-        
-        obj.centerOrigin();
-        obj.centerOffsets();
-
-        // Apply type-specific offsets for notes
-        if (Std.isOfType(obj, Note)) {
+            obj.centerOrigin();
+            obj.centerOffsets();
+            
             var note:Note = cast obj;
             note.offset.x += note.typeOffsetX;
             note.offset.y += note.typeOffsetY;
+        } else if (Std.isOfType(obj, StrumNote)) {
+            obj.centerOrigin();
+            obj.centerOffsets();
         }
     }
 

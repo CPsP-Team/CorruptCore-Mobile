@@ -282,7 +282,7 @@ class LoadingState extends MusicBeatState
 
     function loadCharacter(character:String, onComplete:Void->Void)
     {
-        var characterPath:String = 'characters/' + character + '.json';
+        var characterPath:String = 'data/characters/' + character + '.json';
         var rawJson:String = Paths.getTextFromFile(characterPath);
 
         if (rawJson != null) {
@@ -521,7 +521,7 @@ class LoadingState extends MusicBeatState
         if (character == null) return null;
 
         try {
-            var characterPath:String = 'characters/' + character + '.json';
+            var characterPath:String = 'data/characters/' + character + '.json';
             var rawJson:String = Paths.getTextFromFile(characterPath);
 
             if (rawJson != null) {
@@ -611,7 +611,7 @@ class LoadingState extends MusicBeatState
     static function isCharacterLoaded(character:String):Bool
     {
         var pathsToCheck = [
-            'characters/$character.json',
+            'data/characters/$character.json',
             'images/characters/$character.png',
             'images/characters/$character.xml',
             'images/characters/$character.json',
@@ -668,7 +668,7 @@ class LoadingState extends MusicBeatState
     static function isSoundLoaded(path:String):Bool
     {
         #if MODS_ALLOWED
-        if (path.startsWith('${Mods.MODS_FOLDER}/')) {
+        if (path?.startsWith('${Mods.MODS_FOLDER}/')) {
             return FileSystem.exists(path);
         }
         #end

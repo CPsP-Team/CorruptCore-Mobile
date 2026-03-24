@@ -3,6 +3,8 @@ package game.objects;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.math.FlxPoint;
+import flixel.math.FlxMath;
 
 #if sys
 import sys.io.File;
@@ -10,14 +12,18 @@ import sys.FileSystem;
 #end
 
 import openfl.utils.Assets as OpenFlAssets;
-
 import lime.utils.Assets;
+import math.Vector3;
+
+import game.shaders.PixelShader;
 
 typedef NoteSplashConfig = {
     var scale:Float;
     var animations:Map<String, NoteSplashAnimConfig>;
+    var no_antialiasing:Bool;
     @:optional var allowRGB:Bool;
     @:optional var allowPixel:Bool;
+    @:optional var allowHSB:Bool;
     @:optional var rgb:Array<Dynamic>;
 }
 
@@ -29,12 +35,18 @@ typedef NoteSplashAnimConfig = {
     var noteData:Int;
 }
 
-class NoteSplash extends FlxSprite
+class NoteSplash extends flixel.addons.effects.FlxSkewedSprite
 {
     public static var configs:Map<String, NoteSplashConfig> = new Map();
     public static final defaultNoteSplash:String = 'noteSplashes';
+
+    public var vec3Cache:Vector3 = new Vector3(); // for vector3 operations in modchart code
+    public var defScale:FlxPoint = FlxPoint.get(1, 1); // for modcharts to keep the scaling
     
     public var colorSwap:ColorSwap = null;
+    public var pixelShader:PixelShader;
+    public var allowPixel:Bool = false;
+    
     private var textureLoaded:String = null;
 
     public var config:NoteSplashConfig;
@@ -55,9 +67,8 @@ class NoteSplash extends FlxSprite
         animation = new PsychAnimationController(this);
         
         colorSwap = new ColorSwap();
+        pixelShader = new PixelShader();
         shader = colorSwap.shader;
-
-        antialiasing = ClientPrefs.globalAntialiasing;
 
         loadSplash(texture);
     }
@@ -68,6 +79,8 @@ class NoteSplash extends FlxSprite
             textureLoaded = texture;
             
             config = loadConfig(texture);
+            antialiasing = !(config?.no_antialiasing ?? true) && ClientPrefs.globalAntialiasing;
+            allowPixel = (config?.allowPixel ?? false) && PlayState.isPixelStage;
             
             @:privateAccess
             animation.clearAnimations();
@@ -101,6 +114,7 @@ class NoteSplash extends FlxSprite
             
             if(config != null) {
                 scale.set(config.scale, config.scale);
+                defScale.copyFrom(scale);
                 updateHitbox();
             }
         }
@@ -119,10 +133,29 @@ class NoteSplash extends FlxSprite
             loadSplash(texture);
         }
         
-        if(colorSwap != null) {
+        var useHSB = (config?.allowHSB != false);
+        
+        if (useHSB && colorSwap != null) {
             colorSwap.hue = hueColor;
             colorSwap.saturation = satColor;
             colorSwap.brightness = brtColor;
+        }
+
+        antialiasing = !(config?.no_antialiasing ?? true) && ClientPrefs.globalAntialiasing;
+        allowPixel = (config?.allowPixel ?? false) && PlayState.isPixelStage;
+
+        if (allowPixel) {
+            if (useHSB) {
+                pixelShader.copyFromColorSwap(colorSwap);
+            } else {
+                pixelShader.hue = 0;
+                pixelShader.saturation = 0;
+                pixelShader.brightness = 0;
+            }
+            pixelShader.pixelAmount = PlayState.daPixelZoom;
+            shader = pixelShader.shader;
+        } else {
+            shader = useHSB ? colorSwap.shader : null;
         }
 
         offset.set(10, 10);
@@ -176,9 +209,6 @@ class NoteSplash extends FlxSprite
             }
         });
 
-        alpha = 0.6;
-        antialiasing = ClientPrefs.globalAntialiasing;
-
         spawned = true;
     }
     
@@ -218,8 +248,10 @@ class NoteSplash extends FlxSprite
         return {
             scale: 1,
             animations: new Map(),
+            no_antialiasing: false,
             allowRGB: false,
-            allowPixel: false
+            allowPixel: true,
+            allowHSB: true
         };
     }
 
@@ -249,6 +281,9 @@ class NoteSplash extends FlxSprite
                 var jsonData:Dynamic = haxe.Json.parse(rawJson);
                 
                 config.scale = Reflect.hasField(jsonData, "scale") ? Reflect.field(jsonData, "scale") : 1;
+                config.allowPixel = Reflect.hasField(jsonData, "allowPixel") ? Reflect.field(jsonData, "allowPixel") : false;
+                config.allowHSB = Reflect.hasField(jsonData, "allowHSB") ? Reflect.field(jsonData, "allowHSB") : true;
+                config.no_antialiasing = Reflect.hasField(jsonData, "no_antialiasing") ? Reflect.field(jsonData, "no_antialiasing") : false;
                 
                 if(Reflect.hasField(jsonData, "animations")) {
                     var animsData:Dynamic = Reflect.field(jsonData, "animations");
@@ -279,5 +314,14 @@ class NoteSplash extends FlxSprite
 
     public static function getSplashSkinPostfix():String {
         return '';
+    }
+    
+    override function destroy() {
+        if (defScale != null) {
+            defScale.put();
+            defScale = null;
+        }
+        
+        super.destroy();
     }
 }

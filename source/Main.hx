@@ -56,6 +56,10 @@ class Main extends Sprite
 	// You can pretty much ignore everything from here on - your code should go in your game.states.
 	public static function main():Void
 	{
+		#if CRASH_HANDLER
+	    CrashHandler.init();
+	    #end
+		
 		Lib.current.addChild(new Main());
 
 		MemoryUtil.enableGC();
@@ -76,10 +80,6 @@ class Main extends Sprite
 		if (!MobileUtil.areAssetsCopied("assets/"))
 			MobileUtil.copyAssetsFromAPK("assets/");
 		#end
-
-		#if CRASH_HANDLER
-	    CrashHandler.init();
-	    #end
 
 		#if MODS_ALLOWED
         Application.current.onExit.add((_) -> Mods.clearTempFiles());
@@ -136,7 +136,6 @@ class Main extends Sprite
 
 		lime.RawKeyboard.init();
 
-		lime.Native.fixScaling();
 		lime.Native.registerAsGame();
 		lime.Native.setConsoleOutputToUTF8();
 
