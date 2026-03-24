@@ -147,7 +147,7 @@ class Project extends HXProject
 
     function configureFeatureFlags()
     {
-        MODS_ALLOWED.apply(this, isDesktop());
+        MODS_ALLOWED.apply(this, isDesktop() && isMobile());
         LUA_ALLOWED.apply(this, isCPP());
         HSCRIPT_ALLOWED.apply(this, true);
         MODCHART_ALLOWED.apply(this, true);
