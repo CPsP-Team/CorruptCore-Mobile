@@ -2,6 +2,7 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxState;
+import flixel.addons.transition.TransitionData;
 import flixel.input.keyboard.FlxKey;
 
 import openfl.Lib;
@@ -86,7 +87,7 @@ class Init extends FlxState
 		#end
 
 		#if (FEATURE_DEBUG_TRACY && !macro)
-		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (e:openfl.events.Event) ->
+		FlxG.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (e:openfl.events.Event) ->
 			cpp.vm.tracy.TracyProfiler.frameMark());
 		
 		cpp.vm.tracy.TracyProfiler.setThreadName("main");
@@ -123,7 +124,6 @@ class Init extends FlxState
 		FlxG.cameras.useBufferLocking = true;
 	    FlxG.game.focusLostFramerate = #if mobile 30 #else 60 #end;
         FlxG.keys.preventDefaultKeys = [TAB];
-		#if android FlxG.android.preventDefaultKeys = [BACK]; #end
 
 		#if desktop
 		FlxG.mouse.visible = false;

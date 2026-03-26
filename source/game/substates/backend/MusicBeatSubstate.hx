@@ -1,67 +1,39 @@
 package game.substates.backend;
 
-import game.backend.Conductor.BPMChangeEvent;
-import game.scripting.FunkinLua;
-
 import flixel.FlxG;
-import flixel.FlxSubState;
 import flixel.FlxBasic;
 import flixel.FlxSprite;
-#if sys
-import sys.FileSystem;
-#end
-#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
-import game.scripting.FunkinHScript;
-#end
+import flixel.FlxSubState;
 
 import openfl.filters.BitmapFilter;
 import openfl.utils.Assets as OpenFlAssets;
 
-class MusicBeatSubstate extends FlxSubState
+import game.backend.Conductor.BPMChangeEvent;
+
+#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+import game.scripting.FunkinHScript;
+import game.scripting.haxe.ScriptableHelper;
+#end
+
+class MusicBeatSubstate extends FlxSubState #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES) implements game.backend.interfaces.IScriptable #end
 {
-	public static var instance:MusicBeatSubstate;
 	#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
 	public var menuScriptArray:Array<FunkinHScript> = [];
 	private var excludeSubStates:Array<Dynamic>;
 	#end
 
-	public var camSubState:FlxCamera;
-
-	public var useCustomCamera:Bool = false;
-	public var freezeParentState:Bool = true;
-	
-	public var parentState:MusicBeatState;
+    public var camSubState:FlxCamera;
+    public var useCustomCamera:Bool = false;
+    public var freezeParentState:Bool = true;
+    public var parentState:MusicBeatState;
 
 	// (WStaticInitOrder) Warning : maybe loop in static generation of MusicBeatSubstate
 	private static function initExcludeSubStates():Array<Dynamic> {
 		return [game.scripting.HScriptSubstate];
 	}
 
-	#if MOBILE_CONTROLS
-	public var mobileManager:MobileControlManager;
-	//makes code less messy & easier to write
-	public inline function mobileButtonJustPressed(buttons:Dynamic):Bool {
-		return mobileManager.mobilePad.justPressed(buttons);
-	}
-	public inline function mobileButtonPressed(buttons:Dynamic):Bool {
-		return mobileManager.mobilePad.pressed(buttons);
-	}
-	public inline function mobileButtonReleased(buttons:Dynamic):Bool {
-		return mobileManager.mobilePad.justReleased(buttons);
-	}
-	#end
-
 	public function new()
 	{
-		instance = this;
-
-		#if MOBILE_CONTROLS
-		try {
-			controls.isInSubstate = true;
-		} catch(e:Dynamic) {}
-		mobileManager = new MobileControlManager(this);
-		#end
-
 		super();
 
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
@@ -73,196 +45,158 @@ class MusicBeatSubstate extends FlxSubState
 		initializeSubStateCamera();
 		
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
-		var substatePath = Type.getClassName(Type.getClass(this)).split(".");
-		var substateString = substatePath[substatePath.length - 1];
-		
-		var scriptFiles:Array<String> = [];
-		var folders:Array<String> = Paths.getSubstateScripts(substateString);
-		var processedFiles:Map<String, Bool> = new Map();
-		
-		for (path in folders) {
-			var isDirectory:Bool = false;
-			var isFile:Bool = false;
-			
-			#if sys
-			if (FileSystem.exists(path)) {
-				if (FileSystem.isDirectory(path)) {
-					isDirectory = true;
-					for (file in FileSystem.readDirectory(path)) {
-						if (file.endsWith('.hx')) {
-							var fullPath = haxe.io.Path.join([path, file]);
-							if (!processedFiles.exists(fullPath)) {
-								scriptFiles.push(fullPath);
-								processedFiles.set(fullPath, true);
-							}
-						}
-					}
-				} else if (path.endsWith('.hx')) {
-					isFile = true;
-					if (!processedFiles.exists(path)) {
-						scriptFiles.push(path);
-						processedFiles.set(path, true);
-					}
-				}
-			}
-			#end
-			
-			if (!isDirectory && !isFile) {
-				if (OpenFlAssets.exists(path)) {
-					if (path.endsWith('.hx')) {
-						if (!processedFiles.exists(path)) {
-							scriptFiles.push(path);
-							processedFiles.set(path, true);
-						}
-					} else {
-						var prefix = path.endsWith('/') ? path : path + '/';
-						for (file in OpenFlAssets.list(TEXT)) {
-							if (file.startsWith(prefix) && file.endsWith('.hx') && !processedFiles.exists(file)) {
-								scriptFiles.push(file);
-								processedFiles.set(file, true);
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		for (path in scriptFiles) {
-			menuScriptArray.push(new FunkinHScript(path, this));
-			if (path.contains('${Mods.MODS_FOLDER}/'))
-				trace('Loaded mod substate script: $path');
-			else
-				trace('Loaded base game substate script: $path');
-		}
-		#end
-	}
+        excludeSubStates = initExcludeSubStates();
+        #end
+    }
 
-	private function initializeSubStateCamera():Void
-	{
-		if (Type.getClass(FlxG.state) == PlayState)
-		{
-			var playState:PlayState = cast FlxG.state;
-			if (playState.camSubState != null)
-			{
-				camSubState = playState.camSubState;
-				this.camera = camSubState;
-			}
-		}
-		
-		camSubState ??= cameras != null && cameras.length > 0 ? cameras[0] : FlxG.camera;
-	}
+    private function initializeSubStateCamera():Void
+    {
+        if (Type.getClass(FlxG.state) == PlayState)
+        {
+            var playState:PlayState = cast FlxG.state;
+            if (playState.camSubState != null)
+            {
+                camSubState = playState.camSubState;
+                this.camera = camSubState;
+            }
+        }
+        
+        camSubState ??= cameras != null && cameras.length > 0 ? cameras[0] : FlxG.camera;
+    }
 
-	public function showSubStateCamera():Void
-	{
-		if (useCustomCamera && camSubState != null)
-		{
-			camSubState.visible = true;
-			camSubState.active = true;
-		}
-	}
+    public function showSubStateCamera():Void
+    {
+        if (useCustomCamera && camSubState != null)
+        {
+            camSubState.visible = true;
+            camSubState.active = true;
+        }
+    }
 
-	public function hideSubStateCamera():Void
-	{
-		if (useCustomCamera && camSubState != null)
-		{
-			camSubState.visible = false;
-			camSubState.active = false;
-		}
-	}
+    public function hideSubStateCamera():Void
+    {
+        if (useCustomCamera && camSubState != null)
+        {
+            camSubState.visible = false;
+            camSubState.active = false;
+        }
+    }
 
-	public function setSubStateCameraEffects(?filters:Array<BitmapFilter>):Void
-	{
-		if(camSubState != null) camSubState.filters = filters;
-	}
+    public function setSubStateCameraEffects(?filters:Array<BitmapFilter>):Void
+    {
+        if(camSubState != null) camSubState.filters = filters;
+    }
 
-	public function resetSubStateCameraEffects():Void
-	{
-		if(camSubState != null) camSubState.filters = [];
-	}
+    public function resetSubStateCameraEffects():Void
+    {
+        if(camSubState != null) camSubState.filters = [];
+    }
 
-	private var lastBeat:Float = 0;
-	private var lastStep:Float = 0;
+    private var lastBeat:Float = 0;
+    private var lastStep:Float = 0;
+    private var curStep:Int = 0;
+    private var curBeat:Int = 0;
 
-	private var curStep:Int = 0;
-	private var curBeat:Int = 0;
-	private var controls(get, never):Controls;
+    private var controls(get, never):Controls;
+    inline function get_controls():Controls
+        return PlayerSettings.player1.controls;
 
-	inline function get_controls():Controls
-		return PlayerSettings.player1.controls;
+    override function create()
+    {
+        if (!freezeParentState)
+            parentState.persistentUpdate = parentState.persistentDraw = true;
+        
+        showSubStateCamera();
 
-	override function create()
-	{
-		if (!freezeParentState)
-			parentState.persistentUpdate = parentState.persistentDraw = true;
-		
-		showSubStateCamera();
-		
-		quickCallMenuScript("onCreate", []);
+		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        if (!excludeSubStates.contains(Type.getClass(this)))
+        {
+            final substatePath = Type.getClassName(Type.getClass(this)).split(".");
+            final substateString = substatePath[substatePath.length - 1];
+            final scriptPaths = ScriptableHelper.collectScriptPaths(substateString, Paths.getSubstateScripts);
 
-		super.create();
+            if (scriptPaths.length > 0)
+                scriptHelper = new ScriptableHelper(this, scriptPaths);
+        }
+        #end
+        
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        scriptHelper?.quickCallMenuScript("onCreate", []);
+        #end
+        
+        super.create();
+        
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        if (scriptHelper != null) {
+            scriptHelper.quickSetOnMenuScripts('this', this);
+            scriptHelper.quickCallMenuScript("onCreatePost", []);
+        }
+        #end
+    }
 
-		quickCallMenuScript("onCreatePost", []);
-	}
+    override function update(elapsed:Float)
+    {
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        scriptHelper?.quickCallMenuScript("onUpdate", [elapsed]);
+        #end
+        
+        final oldStep:Int = curStep;
+        if(!persistentUpdate) MusicBeatState.timePassedOnState += elapsed;
+        updateCurStep();
+        curBeat = Math.floor(curStep / 4);
 
-	override function update(elapsed:Float)
-	{
-		quickCallMenuScript("onUpdate", [elapsed]);
-		
-		var oldStep:Int = curStep;
+        if (oldStep != curStep && curStep > 0) stepHit();
 
-		if(!persistentUpdate) MusicBeatState.timePassedOnState += elapsed;
+        super.update(elapsed);
 
-		updateCurStep();
-		curBeat = Math.floor(curStep / 4);
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        scriptHelper?.quickCallMenuScript("onUpdatePost", [elapsed]);
+        #end
+    }
 
-		if (oldStep != curStep && curStep > 0) stepHit();
+    override function openSubState(SubState:FlxSubState)
+    {
+        showSubStateCamera();
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        scriptHelper?.quickCallMenuScript("onOpenSubState", []);
+        #end
+        super.openSubState(SubState);
+    }
 
-		super.update(elapsed);
-		quickCallMenuScript("onUpdatePost", [elapsed]);
-	}
+    override function closeSubState()
+    {
+        hideSubStateCamera();
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        scriptHelper?.quickCallMenuScript("onCloseSubState", []);
+        #end
+        super.closeSubState();
+    }
 
-	override function openSubState(SubState:FlxSubState)
-	{
-		showSubStateCamera();
-		quickCallMenuScript("onOpenSubState", []);
-		super.openSubState(SubState);
-	}
+    private function updateCurStep():Void
+    {
+        final lastChange = Conductor.getBPMFromSeconds(Conductor.songPosition);
+        final stepCrochet:Float = (lastChange.stepCrochet != null && lastChange.stepCrochet > 0) ? lastChange.stepCrochet : Conductor.stepCrochet;
+        curStep = lastChange.stepTime + Math.floor(((Conductor.songPosition - ClientPrefs.noteOffset) - lastChange.songTime) / stepCrochet);
+    }
 
-	override function closeSubState()
-	{
-		hideSubStateCamera();
-		quickCallMenuScript("onCloseSubState", []);
-		super.closeSubState();
-	}
+    public function stepHit():Void
+    {
+        if (curStep % 4 == 0) beatHit();
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        scriptHelper?.quickCallMenuScript("onStepHit", []);
+        #end
+    }
 
-	private function updateCurStep():Void
-	{
-		var lastChange = Conductor.getBPMFromSeconds(Conductor.songPosition);
-		curStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
-	}
-
-	public function stepHit():Void
-	{
-		if (curStep % 4 == 0)
-			beatHit();
-			
-		quickCallMenuScript("onStepHit", []);
-	}
-
-	public function beatHit():Void
-	{
-		quickCallMenuScript("onBeatHit", []);
-	}
+    public function beatHit():Void
+    {
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        scriptHelper?.quickCallMenuScript("onBeatHit", []);
+        #end
+    }
 
 	override function destroy()
 	{
 		hideSubStateCamera();
-		
-		#if MOBILE_CONTROLS
-		if (mobileManager != null) mobileManager.destroy();
-		controls.isInSubstate = false;
-		#end
-		instance = null;
 		
 		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
 		for (sc in menuScriptArray)
@@ -276,19 +210,25 @@ class MusicBeatSubstate extends FlxSubState
 		super.destroy();
 	}
 
-	public function quickCallMenuScript(func:String, ?args:Dynamic):Dynamic
-	{
-		#if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
-		var returnThing:Dynamic = ScriptResult.Function_Continue;
-		for (script in menuScriptArray)
-		{
-			var scriptThing = script.call(func, args);
-			if (scriptThing == null) continue;
-			if (scriptThing == ScriptResult.Function_Stop) returnThing = scriptThing;
-		}
-		return returnThing;
-		#else
-		return ScriptResult.Function_Continue;
-		#end
-	}
+    public function quickCallMenuScript(func:String, ?args:Dynamic):Dynamic {
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        return scriptHelper?.quickCallMenuScript(func, args) ?? ScriptResult.Function_Continue;
+        #else
+        return ScriptResult.Function_Continue;
+        #end
+    }
+
+    public function quickSetOnMenuScripts(variable:String, arg:Dynamic):Void {
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        scriptHelper?.quickSetOnMenuScripts(variable, arg);
+        #end
+    }
+
+    public function callOnMenuScript(event:String, args:Array<Dynamic>, ignoreStops:Bool = true, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
+        #if (HSCRIPT_ALLOWED && SCRIPTABLE_STATES)
+        return scriptHelper?.callOnMenuScript(event, args, ignoreStops, exclusions, excludeValues) ?? ScriptResult.Function_Continue;
+        #else
+        return ScriptResult.Function_Continue;
+        #end
+    }
 }
