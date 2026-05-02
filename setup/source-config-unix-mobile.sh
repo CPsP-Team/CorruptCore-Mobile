@@ -9,32 +9,34 @@ haxelib setup ~/haxelib
 haxelib install tjson --quiet
 haxelib install hxjsonast --quiet
 haxelib git flixel https://github.com/FNF-CC-ENGINE/flixel.git
-haxelib git lime https://github.com/ArkoseLabsOfficial/lime-9.0.0-FileDialog
+haxelib git lime https://github.com/GreenColdTea/lime-fc.git
 haxelib git openfl https://github.com/GreenColdTea/openfl.git
 haxelib install format --quiet
 haxelib install hxp --quiet
+haxelib install svg
 haxelib install flixel-waveform --quiet --skip-dependencies
-haxelib run lime setup flixel
-haxelib install flixel-tools 1.5.1
-haxelib set flixel-tools 1.5.1
-haxelib install flixel-addons 4.0.1
-haxelib set flixel-addons 4.0.1
-haxelib install hxdiscord_rpc 1.3.0
-haxelib set hxdiscord_rpc 1.3.0
 haxelib install hxflac
+haxelib run lime setup flixel
+haxelib set flixel-tools 1.5.1
+haxelib set hxdiscord_rpc 1.3.0
+haxelib git flixel-addons https://github.com/GreenColdTea/flixel-addons.git funkin-before-rebase
 haxelib git away3d https://github.com/openfl/away3d.git
+haxelib git nape-haxe4 https://github.com/HaxeFlixel/nape-haxe4.git
+haxelib git haxeui-core https://github.com/FunkinCrew/haxeui-core.git
+haxelib git haxeui-flixel https://github.com/haxeui/haxeui-flixel.git
 haxelib git hxcpp https://github.com/FunkinCrew/hxcpp
 haxelib git hxopus https://github.com/FNF-CC-ENGINE/hxopus.git
 haxelib git hxvlc https://github.com/MAJigsaw77/hxvlc.git --quiet --skip-dependencies
 haxelib git flxgif https://github.com/FNF-CC-ENGINE/flxgif.git
 haxelib git flxsoundfilters https://github.com/TheZoroForce240/FlxSoundFilters.git
 haxelib git rulescript https://github.com/FNF-CC-ENGINE/RuleScript.git dev --skip-dependencies
-haxelib git hscript https://github.com/HaxeFoundation/hscript.git 47adf4448664827cac571b38c5231c8c72d801f9
+haxelib git hscript https://github.com/HaxeFoundation/hscript.git 0c7f99dbacd5382d9266cf8dfa6192ef80e58ea4
 haxelib git sl-windows-api https://github.com/GreenColdTea/windows-api-improved.git
 haxelib git flixel-animate https://github.com/FNF-CC-ENGINE/flixel-animate.git
 haxelib git hxluajit https://github.com/MAJigsaw77/hxluajit.git
 haxelib git hxluajit-wrapper https://github.com/MAJigsaw77/hxluajit-wrapper.git --skip-dependencies
-haxelib git mobile-controls https://github.com/Prohack101010/mobile-controls-dev #use dev repo for now
+haxelib git thx.semver https://github.com/fponticelli/thx.semver.git
+haxelib git mobile-controls https://github.com/ArkoseLabsOfficial/mobile-controls-dev
 haxelib list
 
 echo

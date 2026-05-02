@@ -52,6 +52,7 @@ class Main extends Sprite
 	//for colorblind mode
 	public static var colorblindMode:Int = -1;
 	public static var colorblindIntensity:Float = 1.0;
+	private static var currentColorblindFilter:ColorMatrixFilter = null;
 
 	// You can pretty much ignore everything from here on - your code should go in your game.states.
 	public static function main():Void
@@ -81,10 +82,15 @@ class Main extends Sprite
 			MobileUtil.copyAssetsFromAPK("assets/");
 		#end
 
-		#if MODS_ALLOWED
-        Application.current.onExit.add((_) -> Mods.clearTempFiles());
-        #end
-
+        Application.current.onExit.add((_) -> {
+			#if MODS_ALLOWED
+			Mods.clearTempFiles();
+			#end
+			#if VIDEOS_ALLOWED
+			hxvlc.util.Handle.dispose();
+			#end
+		});
+        
 		if (stage != null)
 		{
 			init();
@@ -94,12 +100,9 @@ class Main extends Sprite
 			addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 
-		// was taken from doido engine
-		// thanks @nebulazorua, @crowplexus, @diogotvv
 		FlxG.stage.addEventListener(openfl.events.KeyboardEvent.KEY_DOWN, (e) ->
 		{
 			if (e.keyCode == FlxKey.F11) FlxG.fullscreen = !FlxG.fullscreen;
-
 			if (e.keyCode == FlxKey.ENTER && e.altKey) e.stopImmediatePropagation();
 		}, false, 100);
 	}
@@ -117,13 +120,14 @@ class Main extends Sprite
 	private function setupGame():Void
 	{
 		#if (openfl < '9.2.0')
-        var stageWidth:Int = Lib.current.stage.stageWidth;
-	    var stageHeight:Int = Lib.current.stage.stageHeight;
+        final stageWidth:Int = FlxG.stage.stageWidth;
+	    final stageHeight:Int = FlxG.stage.stageHeight;
 
 	    if (game.zoom == -1)
 	    {
-		    var ratioX:Float = stageWidth / game.width;
-		    var ratioY:Float = stageHeight / game.height;
+		    final ratioX:Float = stageWidth / game.width;
+		    final ratioY:Float = stageHeight / game.height;
+			
 		    game.zoom = Math.min(ratioX, ratioY);
 		    game.width = Math.ceil(stageWidth / game.zoom);
 		    game.height = Math.ceil(stageHeight / game.zoom);
@@ -143,6 +147,13 @@ class Main extends Sprite
 		WindowsAPI.disableWindowsReport();
 		//WindowsAPI.disableWindowsGhosting();
 		#end
+
+		#if VIDEOS_ALLOWED
+		hxvlc.util.Handle.init();
+		hxvlc.util.Handle.initAsync();
+		#end
+
+		initHaxeUI();
 
 		var push:FlxGame = new FlxGame(game.width, game.height, game.initialState, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen);
 		@:privateAccess
@@ -166,17 +177,29 @@ class Main extends Sprite
 	/**
 	 * Colorblind mode stuff
 	 *
-	 * Applies a colorblind filter to the camera.
+	 * Applies a colorblind filter to the game.
 	 * @param type - The type of colorblindness (0-7, -1 for no filter).
 	 * @param intensity - The intensity of the filter (0-1, 1 being full intensity).
 	 */
-	public static function applyColorblindFilterToCamera(camera:FlxCamera, type:Int, intensity:Float = 1) {
-		camera.filters = [];
+	public static function applyColorblindFilterToGame(type:Int, intensity:Float = 1) {
+		if (FlxG.game == null) return;
+
+		if (currentColorblindFilter != null) {
+			@:privateAccess
+			var filters = FlxG.game._filters?.copy() ?? [];
+			filters = filters.filter(f -> f != currentColorblindFilter);
+			FlxG.game.setFilters(filters);
+			currentColorblindFilter = null;
+		}
+
 		if (type == -1) return;
 
-		var matrixShit = getColorblindMatrix(type, intensity);
-		var filter = new ColorMatrixFilter(matrixShit);
-		camera.filters = [filter];
+		currentColorblindFilter = new ColorMatrixFilter(getColorblindMatrix(type, intensity));
+
+		@:privateAccess
+		var newFilters = FlxG.game._filters?.copy() ?? [];
+		newFilters.push(currentColorblindFilter);
+		FlxG.game.setFilters(newFilters);
 	}
 
 	private static function getColorblindMatrix(type:Int, intensity:Float):Array<Float> {
@@ -253,9 +276,7 @@ class Main extends Sprite
 		colorblindMode = type;
 		colorblindIntensity = intensity;
 
-		for (camera in FlxG.cameras.list) {
-			applyColorblindFilterToCamera(camera, type, intensity);
-		}
+		applyColorblindFilterToGame(type, intensity);
 
 		ClientPrefs.colorBlindMode = switch (type) {
 			case -1: 'None';
@@ -271,5 +292,18 @@ class Main extends Sprite
 		};
 		ClientPrefs.colorBlindIntensity = intensity;
 		ClientPrefs.saveSettings();
+	}
+
+	private function initHaxeUI():Void
+	{
+		haxe.ui.Toolkit.init();
+		haxe.ui.Toolkit.theme = 'dark';
+		haxe.ui.Toolkit.autoScale = false;
+		haxe.ui.focus.FocusManager.instance.autoFocus = false;
+		haxe.ui.tooltips.ToolTipManager.defaultDelay = 200;
+
+		final extra = new haxe.ui.styles.StyleSheet();
+		extra.parse(openfl.utils.Assets.getText("assets/ui/editor.css"));
+		haxe.ui.Toolkit.styleSheet.addStyleSheet(extra);
 	}
 }
